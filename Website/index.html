@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Home | Dr. Haradhan Adhikary</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="script.js" defer></script>
+  </head>
+  <body>
+    <!-- Navbar will load dynamically -->
+    <section class="biography-section">
+      <div class="biography-container">
+        <!-- Left: Circular Profile Picture -->
+        <div class="bio-image">
+          <img
+            src="images/WhatsApp Image 2024-12-14 at 15.05.37.jpeg"
+            alt="Your Profile Picture"
+          />
+        </div>
+        <!-- Right: Biography Text -->
+        <div class="bio-content">
+          <h2>About Me</h2>
+          <p>
+            I am Dr. Haradhan Adhikary, a postdoctoral researcher specializing
+            in experimental high-energy nuclear physics. My research explores
+            Quark-Gluon Plasma, critical phenomena in heavy-ion collisions, and
+            neutrino oscillation physics. I have contributed extensively to the
+            NA61/SHINE collaboration and presented findings at numerous
+            international conferences.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="gallery-scrollable">
+      <h2>Photo Gallery</h2>
+      <div class="scroll-container">
+        <button class="scroll-btn left" onclick="scrollGallery(-1)">
+          &#10094;
+        </button>
+        <div class="scroll-content" id="gallery">
+          <div class="gallery-item">
+            <img src="images/IMG_20231110_171444.jpg" alt="Photo 1" />
+          </div>
+          <div class="gallery-item">
+            <img src="images/IMG_20230702_041229.HEIC" alt="Photo 2" />
+          </div>
+          <div class="gallery-item">
+            <img src="images/IMG_20221124_174536.HEIC" alt="Photo 3" />
+          </div>
+          <div class="gallery-item">
+            <img src="images/IMG_20230702_040908.HEIC" alt="Photo 4" />
+          </div>
+          <div class="gallery-item">
+            <img src="images/IMG_20240417_180348.jpg" alt="Photo 5" />
+          </div>
+          <div class="gallery-item">
+            <img src="images/IMG_20220508_164757.HEIC" alt="Photo 6" />
+          </div>
+
+          <div class="gallery-item">
+            <img src="images/IMG_20230915_213415.HEIF" alt="Photo 1" />
+          </div>
+          <div class="gallery-item">
+            <img src="images/IMG_20220509_155420.HEIC" alt="Photo 2" />
+          </div>
+          <div class="gallery-item">
+            <img src="images/IMG_20220525_153425.HEIC" alt="Photo 3" />
+          </div>
+          <div class="gallery-item">
+            <img src="images/FB_IMG_1727901099031.jpg" alt="Photo 4" />
+          </div>
+          <div class="gallery-item">
+            <img src="images/FB_IMG_1699455640981.jpg" alt="Photo 5" />
+          </div>
+          <div class="gallery-item">
+            <img src="images/FB_IMG_1680366693016.jpg" alt="Photo 6" />
+          </div>
+        </div>
+        <button class="scroll-btn right" onclick="scrollGallery(1)">
+          &#10095;
+        </button>
+      </div>
+    </section>
+
+    <footer>
+      <div class="container">
+        <p>&copy; 2024 Dr. Haradhan Adhikary. All rights reserved.</p>
+      </div>
+    </footer>
+  </body>
+</html>

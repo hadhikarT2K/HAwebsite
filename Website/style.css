@@ -1,0 +1,613 @@
+/* General Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Navbar */
+.navbar {
+  background: linear-gradient(45deg, #007acc, #005f99);
+  color: white;
+  padding: 1rem 0;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+.navbar .container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 1rem;
+}
+.navbar h1 a {
+  text-decoration: none;
+  color: white;
+  font-size: 1.5rem;
+}
+.navbar nav ul {
+  list-style: none;
+  display: flex;
+  gap: 1rem;
+}
+.navbar nav ul li a {
+  text-decoration: none;
+  color: white;
+  font-size: 1rem;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  transition:
+    background 0.3s,
+    color 0.3s;
+}
+.navbar nav ul li a:hover {
+  background: #fff;
+  color: #007acc;
+}
+
+/* Hero Section */
+.hero {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  text-align: center;
+  background: url("images/profile.jpg") no-repeat center center/cover;
+}
+.hero h2 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+.hero p {
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
+}
+.hero .btn-primary {
+  background: #ff6f61;
+  padding: 0.7rem 1.5rem;
+  color: white;
+  text-decoration: none;
+  border-radius: 5px;
+  transition: background 0.3s;
+}
+.hero .btn-primary:hover {
+  background: #ff3e2e;
+}
+
+/* Footer */
+footer {
+  background: #333;
+  color: white;
+  text-align: center;
+  padding: 1rem 0;
+}
+
+/* Section Styling */
+section {
+  padding: 2rem 1rem;
+}
+section h2 {
+  text-align: center;
+  margin-bottom: 1rem;
+  font-size: 2rem;
+  color: #007acc;
+}
+.container {
+  width: 80%;
+  margin: auto;
+}
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+}
+.card {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s;
+}
+.card:hover {
+  transform: scale(1.05);
+}
+.card img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+.card-content {
+  padding: 1rem;
+  text-align: center;
+}
+.card-content h3 {
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+}
+.card-content p {
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+.card-content a {
+  color: #007acc;
+  text-decoration: none;
+  font-weight: bold;
+}
+.card-content a:hover {
+  color: #005f99;
+}
+
+/* Gallery Section */
+.gallery {
+  padding: 2rem 1rem;
+  text-align: center;
+}
+.gallery h2 {
+  font-size: 2rem;
+  color: #007acc;
+  margin-bottom: 1rem;
+}
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  justify-items: center;
+}
+.gallery-item {
+  width: 200px; /* Set fixed width */
+  height: 200px; /* Set fixed height */
+  overflow: hidden;
+  border-radius: 10px;
+  transition: transform 0.3s;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f4f4f4; /* Placeholder background for empty space */
+}
+.gallery-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Ensures images cover the container without distortion */
+  border-radius: 10px;
+  transition:
+    transform 0.3s,
+    box-shadow 0.3s;
+}
+.gallery-item:hover img {
+  transform: scale(1.05);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Scrollable Gallery Section */
+.gallery-scrollable {
+  padding: 2rem 1rem;
+  text-align: center;
+  position: relative;
+}
+.gallery-scrollable h2 {
+  font-size: 2rem;
+  color: #007acc;
+  margin-bottom: 1rem;
+}
+.scroll-container {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+.scroll-btn {
+  background-color: #007acc;
+  color: white;
+  border: none;
+  font-size: 2rem;
+  padding: 0.5rem;
+  cursor: pointer;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1000;
+  border-radius: 50%;
+  transition: background-color 0.3s;
+}
+.scroll-btn:hover {
+  background-color: #005f99;
+}
+.scroll-btn.left {
+  left: 0;
+}
+.scroll-btn.right {
+  right: 0;
+}
+.scroll-content {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  width: 100%;
+  padding: 1rem 0;
+}
+.scroll-content::-webkit-scrollbar {
+  display: none; /* Hides the scrollbar for a clean look */
+}
+.gallery-item {
+  flex: 0 0 auto;
+  width: 200px;
+  height: 200px;
+  overflow: hidden;
+  border-radius: 10px;
+  transition: transform 0.3s;
+  cursor: pointer;
+}
+.gallery-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 10px;
+  transition:
+    transform 0.3s,
+    box-shadow 0.3s;
+}
+.gallery-item:hover img {
+  transform: scale(1.05);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Carousel Gallery Section */
+.gallery-carousel {
+  padding: 2rem 1rem;
+  text-align: center;
+  position: relative;
+}
+.gallery-carousel h2 {
+  font-size: 2rem;
+  color: #007acc;
+  margin-bottom: 1rem;
+}
+.carousel-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+.carousel-content {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  width: 300px; /* Show one image at a time */
+}
+.carousel-content::-webkit-scrollbar {
+  display: none; /* Hides the scrollbar for a clean look */
+}
+.carousel-item {
+  flex: 0 0 100%; /* Only one item is visible at a time */
+  width: 200px;
+  height: 200px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 10px;
+  transition: transform 0.3s;
+}
+.carousel-item img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 10px;
+  object-fit: cover;
+}
+.carousel-btn {
+  background-color: #007acc;
+  color: white;
+  border: none;
+  font-size: 2rem;
+  padding: 0.5rem;
+  cursor: pointer;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1000;
+  border-radius: 50%;
+  transition: background-color 0.3s;
+}
+.carousel-btn:hover {
+  background-color: #005f99;
+}
+.carousel-btn.left {
+  left: 0;
+}
+.carousel-btn.right {
+  right: 0;
+}
+
+.papers-section {
+  padding: 2rem 1rem;
+}
+.papers-section h2 {
+  text-align: center;
+  margin-bottom: 1rem;
+  font-size: 1.8rem;
+  color: #007acc;
+}
+#papers-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+  justify-content: center;
+}
+.paper-card {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 1rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s;
+}
+.paper-card:hover {
+  transform: scale(1.05);
+}
+.paper-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #007acc;
+  margin-bottom: 0.5rem;
+  text-decoration: none;
+}
+.paper-title:hover {
+  text-decoration: underline;
+}
+.paper-authors {
+  font-size: 0.9rem;
+  color: #555;
+  margin-bottom: 0.5rem;
+}
+
+/* Papers Section */
+.papers-section {
+  padding: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+#papers-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+}
+.paper-card {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s;
+}
+.paper-card:hover {
+  transform: scale(1.05);
+}
+.paper-title {
+  font-size: 1.2rem;
+  color: #007acc;
+  text-decoration: none;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+.paper-title:hover {
+  text-decoration: underline;
+}
+.paper-authors {
+  font-size: 0.9rem;
+  color: #555;
+}
+
+/* General Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Global Styles */
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(
+    to right,
+    white,
+    #3498db
+  ); /* Gradient from dark to light blue */
+  color: white; /* Text color */
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+header,
+footer {
+  background: linear-gradient(to right, #34495e, #2c3e50);
+  padding: 10px 0;
+  text-align: center;
+}
+
+h1 {
+  margin: 0;
+  font-size: 2rem;
+}
+
+/* Biography Section */
+.biography-section {
+  padding: 40px 20px;
+  background: linear-gradient(
+    to bottom,
+    #3498db,
+    #2ecc71
+  ); /* Blue to green gradient */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.biography-container {
+  display: flex;
+  flex-wrap: wrap;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.bio-image img {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%; /* Circular image */
+  object-fit: cover;
+  margin-right: 20px;
+}
+
+.bio-content {
+  max-width: 600px;
+}
+
+.bio-content h2 {
+  font-size: 1.8rem;
+  margin-bottom: 10px;
+  color: #f1c40f;
+}
+
+footer p {
+  margin: 0;
+  padding: 10px;
+}
+
+/* Optional: Gradient for specific sections */
+.biography-section {
+  background: linear-gradient(
+    to bottom,
+    #3498db,
+    #2ecc71
+  ); /* Blue to green gradient */
+  padding: 50px 10px;
+  color: white; /* Ensures text is visible on gradient */
+}
+
+header,
+footer {
+  background: linear-gradient(
+    to right,
+    #34495e,
+    #2c3e50
+  ); /* Darker gradient for navbar/footer */
+  color: white;
+  padding: 10px 20px;
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5); /* Adds subtle shadow */
+}
+
+.bio-content h2 {
+  color: #f1c40f; /* Bright yellow text for headings */
+}
+
+/* Optional: Add hover effects to buttons or links */
+a {
+  color: #f39c12; /* Orange links */
+  transition: color 0.3s ease;
+}
+
+a:hover {
+  color: #e74c3c; /* Red on hover */
+}
+
+/* Biography Section */
+.biography-section {
+  position: relative;
+  padding: 3rem 1rem;
+  background: url("images/history-of-universe-and-qgp-2.jpg") no-repeat center
+    center/cover; /* Background image */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  color: white;
+}
+
+/* Biography Container */
+.biography-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 90%;
+  max-width: 1200px;
+  background: rgba(
+    0,
+    0,
+    0,
+    0.8
+  ); /* Semi-transparent dark background for readability */
+  border-radius: 10px;
+  padding: 2rem;
+  gap: 2rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+}
+
+/* Left: Circular Picture */
+.bio-image {
+  flex: 1;
+  text-align: center;
+}
+.bio-image img {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%; /* Circular shape */
+  object-fit: cover;
+  border: 4px solid white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
+  transition: transform 0.3s;
+}
+
+.bio-image img {
+  width: 200px; /* Ensure a fixed width */
+  height: 200px; /* Ensure a fixed height (same as width for circular shape) */
+  border-radius: 50%; /* Makes the image circular */
+  object-fit: cover; /* Ensures the image fills the circular area */
+  border: 4px solid white; /* Adds a white border for styling */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5); /* Adds a shadow for depth */
+  transition: transform 0.3s ease; /* Smooth zoom effect on hover */
+}
+
+.bio-image img:hover {
+  transform: scale(1.1); /* Zoom effect when hovering over the image */
+}
+
+/* Hover Effect on the Profile Picture */
+.bio-image img:hover {
+  transform: scale(1.1);
+}
+
+/* Right: Biography Text */
+.bio-content {
+  flex: 2;
+  color: white;
+  text-align: left;
+}
+.bio-content h2 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  color: #00d4ff; /* Light blue heading */
+}
+.bio-content p {
+  font-size: 1.2rem;
+  line-height: 1.6;
+  text-align: justify;
+}
+
+/* Responsive Design for Smaller Screens */
+@media screen and (max-width: 768px) {
+  .biography-container {
+    flex-direction: column;
+    text-align: center;
+  }
+  .bio-image img {
+    width: 150px;
+    height: 150px;
+  }
+}
