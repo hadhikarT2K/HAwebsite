@@ -81,6 +81,7 @@ footer {
   background: #333;
   color: white;
   text-align: center;
+  position: static; /* Always at bottom */
   padding: 1rem 0;
 }
 
