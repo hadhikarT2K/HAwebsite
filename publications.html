@@ -28,6 +28,13 @@
       </div>
     </section>
 
+    <div class="container" style="padding: 50px 0;">
+        <h1>Latest Publications</h1>
+        <div id="publications">
+            Loading publications...
+        </div>
+    </div>
+
     <section>
       <h2>Publications</h2>
       <div class="container">
@@ -58,5 +65,53 @@
         <p>&copy; 2024 Dr. Haradhan Adhikary. All rights reserved.</p>
       </div>
     </footer>
+
+ <script>
+        async function fetchPublications() {
+            const apiUrl = 'https://inspirehep.net/api/literature?q=cn:"na61"&a:"Adhikary"&format=json';
+            const publicationsContainer = document.getElementById('publications');
+            
+            try {
+                const response = await fetch(apiUrl);
+                
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                
+                const data = await response.json();
+                
+                // Check if data has results
+                if (data.hits.total > 0) {
+                    const publications = data.hits.hits;
+
+                    // Build HTML content
+                    let publicationsHTML = '<ul>';
+                    publications.forEach(pub => {
+                        const title = pub.metadata.title[0] || "Untitled Publication";
+                        const link = pub.links.doi || '#';
+                        publicationsHTML += `
+                            <li>
+                                <a href="${link}" target="_blank">${title}</a>
+                            </li>
+                        `;
+                    });
+                    publicationsHTML += '</ul>';
+
+                    publicationsContainer.innerHTML = publicationsHTML;
+                } else {
+                    publicationsContainer.innerHTML = "No publications found.";
+                }
+
+            } catch (error) {
+                console.error('Failed to load publications:', error);
+                publicationsContainer.innerHTML = "Failed to load publications. Please try again later.";
+            }
+        }
+
+        // Fetch publications on page load
+        fetchPublications();
+    </script>
+
+    
   </body>
 </html>
