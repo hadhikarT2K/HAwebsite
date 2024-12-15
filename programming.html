@@ -55,46 +55,42 @@
     <pre id="output">Output will appear here...</pre>
 
     <script>
-async function runCppCode() {
-    const cppCode = document.getElementById('cppCode').value;
-    const outputElement = document.getElementById('output');
-    outputElement.textContent = "Running...";
+        async function runCppCode() {
+            const cppCode = document.getElementById('cppCode').value;
+            const outputElement = document.getElementById('output');
+            outputElement.textContent = "Running...";
 
-    try {
-        // Send C++ code to Judge0 API
-        const response = await fetch("https://api.judge0.com/submissions?base64_encoded=false&wait=true", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                language_id: 52, // 52 is the ID for C++ (GCC)
-                source_code: cppCode,
-            }),
-        });
+            try {
+                const response = await fetch("https://judge0-ce.p.rapidapi.com/submissions?base64_encoded=false&wait=true", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-RapidAPI-Key": "c4b650ad61msh190ab070ef327abp14fb76jsn3fb1aca6593d", // Replace with your RapidAPI key
+                        "X-RapidAPI-Host": "judge0-ce.p.rapidapi.com",
+                    },
+                    body: JSON.stringify({
+                        language_id: 52, // C++ (GCC)
+                        source_code: cppCode,
+                    }),
+                });
 
-        // Check if the response is OK
-        if (!response.ok) {
-            outputElement.textContent = `Error: ${response.status} - ${response.statusText}`;
-            return;
+                if (!response.ok) {
+                    outputElement.textContent = `Error: ${response.status} - ${response.statusText}`;
+                    return;
+                }
+
+                const result = await response.json();
+                if (result.stderr) {
+                    outputElement.textContent = `Error:\n${result.stderr}`;
+                } else if (result.stdout) {
+                    outputElement.textContent = result.stdout;
+                } else {
+                    outputElement.textContent = "No output.";
+                }
+            } catch (error) {
+                outputElement.textContent = `Error: ${error.message}`;
+            }
         }
-
-        // Parse the response
-        const result = await response.json();
-
-        // Display the output or errors
-        if (result.stderr) {
-            outputElement.textContent = `Error:\n${result.stderr}`;
-        } else if (result.stdout) {
-            outputElement.textContent = result.stdout;
-        } else {
-            outputElement.textContent = "No output.";
-        }
-    } catch (error) {
-        // Handle fetch errors
-        outputElement.textContent = `Error: ${error.message}`;
-    }
-}
 
     </script>
 </body>
