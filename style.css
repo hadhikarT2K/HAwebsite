@@ -429,6 +429,7 @@ header,
 footer {
   background: linear-gradient(to right, #34495e, #2c3e50);
   padding: 10px 0;
+  position: sticky;
   text-align: center;
 }
 
@@ -501,6 +502,7 @@ footer {
   color: white;
   padding: 10px 20px;
   text-align: center;
+  position: sticky;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5); /* Adds subtle shadow */
 }
 
