@@ -643,6 +643,98 @@ a:hover {
   text-align: justify;
 }
 
+.header {
+    position: relative;
+    height: 100vh;
+    background-image: url('images/history-of-universe-and-qgp-2.jpg'); /* Replace with your background image */
+    background-size: cover;
+    background-position: center;
+    color: white;
+    text-align: center;
+}
+
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4); /* Semi-transparent overlay for better readability */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.bio-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 80%;
+    max-width: 1200px;
+    padding: 20px;
+}
+
+.bio-text {
+    width: 60%;
+    padding-right: 20px;
+}
+
+h1 {
+    font-size: 3em;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
+}
+
+p {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
+    margin-bottom: 15px;
+}
+
+.bio-image {
+    width: 30%;
+    text-align: center;
+}
+
+.bio-image img {
+    width: 250px;
+    height: 250px;
+    border-radius: 50%;
+    border: 5px solid white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+}
+
+.cta {
+    text-align: center;
+    margin-top: 30px;
+}
+
+.cta p {
+    font-size: 1.5em;
+    margin-bottom: 20px;
+    color: #2a3d66;
+}
+
+.cta button {
+    background-color: #2a3d66;
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    font-size: 1em;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.cta button:hover {
+    background-color: #3c4d78;
+}
+
+
+
+
 /* Responsive Design for Smaller Screens */
 @media screen and (max-width: 768px) {
   .biography-container {
