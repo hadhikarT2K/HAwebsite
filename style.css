@@ -753,6 +753,78 @@ p {
     background-color: #3c4d78;
 }
 
+/* Navbar General Styling */
+.navbar {
+    background-color: #333; /* Dark background color */
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    height: 60px;
+    z-index: 1000;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+/* Container for Navbar */
+.container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 90%;
+    max-width: 1200px;
+}
+
+/* Logo Styling */
+.logo {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: white;
+}
+
+.logo-image {
+    width: 40px; /* Logo width */
+    height: 40px; /* Logo height (same as width for circular shape) */
+    border-radius: 50%; /* Makes the image circular */
+    object-fit: cover; /* Ensures the image fills the circle */
+    margin-right: 10px; /* Spacing between logo and title */
+    border: 2px solid white; /* Optional: Add a border for better visibility */
+}
+
+/* Title Styling */
+.nav-title {
+    font-size: 18px;
+    font-weight: bold;
+    white-space: nowrap; /* Prevents text wrapping */
+}
+
+/* Navigation Links Styling */
+.nav-links {
+    list-style: none;
+    display: flex;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-links li {
+    margin-left: 20px;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: white;
+    font-size: 16px;
+    transition: color 0.3s ease;
+}
+
+.nav-links a:hover {
+    color: #00bcd4; /* Hover color */
+}
+
+
 
 
 
