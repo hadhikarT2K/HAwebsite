@@ -914,6 +914,7 @@ footer {
     top: 0;
     z-index: 1000; /* Ensures it stays above other elements */
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    margin-top: 20px;
 }
 
 section {
