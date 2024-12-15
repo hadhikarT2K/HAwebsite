@@ -576,31 +576,7 @@ a:hover {
 }
 
 /* Biography Section */
-.biography-section {
-    padding: 4rem 1rem; /* Ensure proper spacing */
-    background: url('history-of-universe-and-qgp-2-2.jpg') no-repeat center center/cover; /* Background image settings */
-    color: white; /* Text color for readability */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 60vh; /* Ensure section takes up adequate space */
-    width: 100%; /* Prevent overflow horizontally */
-    overflow: hidden; /* Prevent content overflow */
-}
 
-/* Biography Content 
-.biography-container {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 90%;
-    max-width: 1200px;
-    background: rgba(0, 0, 0, 0.7); 
-    border-radius: 10px;
-    padding: 2rem;
-    gap: 2rem;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
-}
 
 
 
@@ -616,7 +592,7 @@ padding: 4rem 1rem;
   min-height: 60vh;
   color: white;
   width: 98%;
-}*/
+}
 
 /* Biography Container */
 .biography-container {
