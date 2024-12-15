@@ -823,7 +823,15 @@ p {
     color: #00bcd4; /* Hover color */
 }
 
-
+footer {
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 10px;
+    width: 100%;
+    position: relative; /* Normal flow footer */
+    bottom: 0;
+}
 
 
 
