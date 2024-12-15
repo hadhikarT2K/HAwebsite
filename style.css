@@ -46,6 +46,68 @@
   color: #007acc;
 }
 
+
+header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+header h1 {
+    font-size: 2.5em;
+    color: #2a3d66;
+}
+
+header p {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #5a6a7b;
+}
+
+.bio {
+    background-color: #ffffff;
+    padding: 30px;
+    margin-bottom: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.bio h2 {
+    font-size: 1.8em;
+    margin-bottom: 20px;
+    color: #2a3d66;
+}
+
+.bio p {
+    font-size: 1.1em;
+    margin-bottom: 20px;
+    color: #5a6a7b;
+}
+
+.cta {
+    text-align: center;
+    margin-top: 30px;
+}
+
+.cta p {
+    font-size: 1.2em;
+    margin-bottom: 20px;
+    color: #2a3d66;
+}
+
+.cta button {
+    background-color: #2a3d66;
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    font-size: 1em;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.cta button:hover {
+    background-color: #3c4d78;
+}
+
 /* Hero Section */
 .hero {
   height: 100vh;
