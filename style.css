@@ -902,6 +902,74 @@ section:nth-of-type(2) {
 }
 
 
+.biography-section {
+    position: relative; /* Enables positioning for overlay */
+    padding: 4rem 1rem; /* Adds space inside the section */
+    color: white; /* Ensures text is readable */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh; /* Ensures the section has enough height */
+    background: url('history-of-universe-and-qgp-2-2.jpg') no-repeat center center; /* Positions the background image */
+    background-size: cover; /* Ensures the image covers the entire section */
+    overflow: hidden; /* Prevents content overflow */
+}
+
+/* Overlay for Transparency */
+.biography-section::before {
+    content: ""; /* Creates the overlay */
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5); /* Black overlay with 50% transparency */
+    z-index: 1; /* Places the overlay behind the content */
+}
+
+/* Content in Biography Section */
+.biography-container {
+    position: relative; /* Keeps content above the overlay */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 90%;
+    max-width: 1200px;
+    background: rgba(0, 0, 0, 0.6); /* Adds a transparent background to the content box */
+    border-radius: 10px;
+    padding: 2rem;
+    gap: 2rem;
+    z-index: 2; /* Places content above the overlay */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+}
+
+/* Biography Image */
+.bio-image img {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%; /* Circular image */
+    object-fit: cover;
+    border: 4px solid white;
+}
+
+/* Biography Text */
+.bio-content {
+    flex: 2;
+    color: white;
+    text-align: justify;
+}
+.bio-content h2 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    color: #f1c40f; /* Bright yellow heading */
+}
+.bio-content p {
+    font-size: 1.2rem;
+    line-height: 1.6;
+}
+
+
+
 
 /* Responsive Design for Smaller Screens */
 @media screen and (max-width: 768px) {
