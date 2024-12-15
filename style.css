@@ -916,3 +916,16 @@ footer {
     height: 150px;
   }
 }
+
+@media (max-width: 768px) {
+    .navbar .nav-links {
+        flex-direction: column; /* Stack links vertically */
+        gap: 10px; /* Reduce gap between links */
+    }
+
+    footer {
+        font-size: 14px; /* Adjust font size for compact screens */
+        padding: 10px;
+    }
+}
+
