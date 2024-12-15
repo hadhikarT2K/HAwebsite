@@ -909,7 +909,7 @@ section:nth-of-type(2) {
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 60vh; /* Ensures the section has enough height */
+    min-height: 40vh; /* Ensures the section has enough height */
     background: url('history-of-universe-and-qgp-2-2.jpg') no-repeat center center; /* Positions the background image */
     background-size: cover; /* Ensures the image covers the entire section */
     overflow: hidden; /* Prevents content overflow */
@@ -923,7 +923,7 @@ section:nth-of-type(2) {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.5); /* Black overlay with 50% transparency */
+    background: rgba(0, 0, 0, 0.4); /* Black overlay with 50% transparency */
     z-index: 1; /* Places the overlay behind the content */
 }
 
