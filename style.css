@@ -903,7 +903,9 @@ footer {
   margin-top: 70px;
 }
 
-
+section {
+    padding: 20px;
+}
 
 /* Responsive Design for Smaller Screens */
 @media screen and (max-width: 768px) {
