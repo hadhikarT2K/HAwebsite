@@ -910,7 +910,7 @@ footer {
     align-items: center;
     height: 70px; /* Fixed height for the navbar */
     width: 100%;
-    position: fixed; /* Ensures navbar stays at the top */
+    position: relative; /* Ensures navbar stays at the top */
     top: 0;
     z-index: 1000; /* Ensures it stays above other elements */
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
