@@ -51,7 +51,7 @@
 
  <script>
         async function fetchPublications() {
-            const apiUrl = 'https://inspirehep.net/api/literature?q=cn:"na61"&a:"Adhikary"&format=json';
+            const apiUrl = 'https://inspirehep.net/literature?sort=mostrecent&size=25&page=1&q=author%20H%20Adhikary';
             const publicationsContainer = document.getElementById('publications');
             
             try {
