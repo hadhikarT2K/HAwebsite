@@ -13,6 +13,7 @@
   }
   function clearToken() { try { localStorage.removeItem(KEY); sessionStorage.removeItem(KEY); } catch (e) {} }
 
+  var API = "https://api.github.com/repos/" + REPO.owner + "/" + REPO.repo;
   var onAdminPage = !!document.getElementById("admin-app");
   var token = getToken();
 
@@ -23,11 +24,49 @@
     var pill = document.createElement("a");
     pill.href = "admin.html"; pill.className = "btn primary manage-pill"; pill.textContent = "Manage site";
     document.body.appendChild(pill);
+    document.documentElement.classList.add("is-owner");
+    initHighlightButtons();
     return;
   }
 
+  /* ---------- ☆ buttons on the publications list (owner only) ---------- */
+  function toast(text, kind) {
+    var t = document.getElementById("owner-toast");
+    if (!t) { t = document.createElement("div"); t.id = "owner-toast"; t.setAttribute("role", "status"); document.body.appendChild(t); }
+    t.textContent = text; t.className = kind || ""; t.hidden = false;
+    clearTimeout(t._h); t._h = setTimeout(function () { t.hidden = true; }, 5000);
+  }
+  function initHighlightButtons() {
+    var list = document.getElementById("pub-list");
+    if (!list || !window.SiteHL) return;
+    var busy = false;
+    list.addEventListener("click", function (e) {
+      var btn = e.target.closest(".hl-btn"); if (!btn || busy) return;
+      var HL = window.SiteHL, rec = HL.shown[+btn.getAttribute("data-i")]; if (!rec) return;
+      busy = true; btn.disabled = true; toast("Saving…");
+      readJSON("data/papers.json").then(function (papers) {
+        HL.papers = papers;
+        var i = HL.find(rec), adding = i < 0, msgText;
+        if (adding) {
+          papers.unshift({ id: "inspire-" + rec.id, inspire: String(rec.id), title: rec.title, collab: rec.collab || "", journal: rec.journal || "",
+            year: rec.year || "", arxiv: rec.arxiv || "", doi: rec.doi || "", url: "https://inspirehep.net/literature/" + rec.id,
+            type: rec.type || "article", note: "", featured: true });
+          msgText = "Added to Highlighted.";
+        } else {
+          if (papers[i].inspire) papers.splice(i, 1); else papers[i].featured = false;
+          msgText = "Removed from Highlighted.";
+        }
+        return commit([{ path: "data/papers.json", text: JSON.stringify(papers, null, 1) + "\n" }],
+          (adding ? "Highlight: " : "Unhighlight: ") + rec.title.slice(0, 60)).then(function () {
+          HL.papers = papers; HL.renderFeatured(); HL.renderList();
+          toast(msgText + " Live for visitors in about 2 minutes.", "ok");
+        });
+      }).catch(function (err) { toast("Couldn't save: " + err.message, "err"); btn.disabled = false; })
+        .then(function () { busy = false; });
+    });
+  }
+
   /* ---------- GitHub API helpers ---------- */
-  var API = "https://api.github.com/repos/" + REPO.owner + "/" + REPO.repo;
   function gh(path, opts) {
     opts = opts || {};
     return fetch(path.indexOf("http") === 0 ? path : API + path, {
@@ -197,11 +236,22 @@
   var papers = [];
   function renderPapers() {
     document.getElementById("paper-admin").innerHTML = papers.map(function (p, i) {
-      return '<li><div><span class="t">' + esc(p.title) + "</span><small>" + esc([p.collab, p.journal, p.year, p.arxiv && "arXiv:" + p.arxiv].filter(Boolean).join(" · ")) + '</small></div><button type="button" data-del="' + i + '">Delete</button></li>';
+      if (!p.featured) return "";
+      return '<li><div><span class="t">' + esc(p.title) + "</span><small>" + esc([p.collab, p.journal, p.year, p.arxiv && "arXiv:" + p.arxiv].filter(Boolean).join(" · ")) + '</small></div><span class="row-btns">' +
+        (i > 0 ? '<button type="button" data-up="' + i + '" title="Move up">↑</button>' : "") + '<button type="button" data-del="' + i + '">Remove</button></span></li>';
     }).join("") || '<li class="muted">None yet.</li>';
   }
   function loadPapers() { readJSON("data/papers.json").then(function (p) { papers = p; renderPapers(); }); }
   document.getElementById("paper-admin").addEventListener("click", function (e) {
+    var up = e.target.getAttribute("data-up");
+    if (up != null) {
+      up = +up; var tmp = papers[up - 1]; papers[up - 1] = papers[up]; papers[up] = tmp;
+      renderPapers(); msg("paper-msg", "Saving order…");
+      commit([{ path: "data/papers.json", text: JSON.stringify(papers, null, 1) + "\n" }], "Reorder highlighted papers")
+        .then(function () { msg("paper-msg", "Order saved." + LIVE_NOTE, "ok"); })
+        .catch(function (err) { msg("paper-msg", "Save failed: " + err.message, "err"); loadPapers(); });
+      return;
+    }
     var i = e.target.getAttribute("data-del"); if (i == null) return;
     var p = papers[+i];
     if (e.target.textContent !== "Confirm") { e.target.textContent = "Confirm"; return; }
@@ -235,13 +285,13 @@
   document.getElementById("paper-form").addEventListener("submit", function (e) {
     e.preventDefault();
     var v = function (k) { return document.getElementById(k).value.trim(); };
-    var p = { id: slug(v("p-title")) + "-" + Date.now().toString(36), title: v("p-title"), collab: v("p-collab"), journal: v("p-journal"), year: v("p-year"),
+    var p = { id: slug(v("p-title")) + "-" + Date.now().toString(36), featured: true, title: v("p-title"), collab: v("p-collab"), journal: v("p-journal"), year: v("p-year"),
       arxiv: v("p-arxiv").replace(/^arxiv:/i, ""), doi: v("p-doi"), url: v("p-url"), type: v("p-type"), note: v("p-note") };
     var btn = e.target.querySelector("button[type=submit]"); btn.disabled = true; msg("paper-msg", "Saving…");
     readJSON("data/papers.json").then(function (cur) {
       cur.unshift(p); papers = cur;
       return commit([{ path: "data/papers.json", text: JSON.stringify(cur, null, 1) + "\n" }], "Add paper: " + p.title.slice(0, 60));
-    }).then(function () { msg("paper-msg", "Paper added." + LIVE_NOTE, "ok"); e.target.reset(); renderPapers(); })
+    }).then(function () { msg("paper-msg", "Added to Highlighted." + LIVE_NOTE, "ok"); e.target.reset(); renderPapers(); })
       .catch(function (err) { msg("paper-msg", "Save failed: " + err.message, "err"); })
       .then(function () { btn.disabled = false; });
   });

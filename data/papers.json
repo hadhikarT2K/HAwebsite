@@ -50,41 +50,5 @@
   "type": "thesis",
   "note": "",
   "featured": true
- },
- {
-  "id": "confinement-xv-proc",
-  "title": "Search for the critical point of strongly interacting matter",
-  "collab": "H. Adhikary for the NA61/SHINE Collaboration",
-  "journal": "EPJ Web Conf. 274 (2022) 06008",
-  "year": "2022",
-  "arxiv": "2211.10504",
-  "doi": "",
-  "url": "",
-  "type": "proc",
-  "note": "Confinement XV proceedings"
- },
- {
-  "id": "icnfp-2021-proc",
-  "title": "Search for the QCD critical point by NA61/SHINE at the CERN SPS",
-  "collab": "H. Adhikary for the NA61/SHINE Collaboration",
-  "journal": "",
-  "year": "2023",
-  "arxiv": "2308.04254",
-  "doi": "",
-  "url": "",
-  "type": "proc",
-  "note": "ICNFP 2021 proceedings"
- },
- {
-  "id": "na61-intermittency",
-  "title": "NA61/SHINE collaboration publications (co-author)",
-  "collab": "NA61/SHINE",
-  "journal": "",
-  "year": "",
-  "arxiv": "",
-  "doi": "",
-  "url": "https://cernbox.cern.ch/s/Y0DgqBxpvrNascb",
-  "type": "article",
-  "note": "Full list of collaboration papers"
  }
 ]

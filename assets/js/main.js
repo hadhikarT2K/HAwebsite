@@ -226,19 +226,44 @@
     }).catch(function () { talkList.innerHTML = '<p class="pub-status">Couldn\'t load talks. Please refresh the page.</p>'; });
   }
 
-  /* ---------- highlighted publications (featured in data/papers.json) ---------- */
+  /* ---------- highlighted papers: shared state (data/papers.json, entries with featured:true) ---------- */
+  var HL = window.SiteHL = {
+    papers: [], shown: [],
+    keys: function (p) {   // identifiers of a paper, for matching INSPIRE records with highlighted entries
+      var k = [];
+      if (p.inspire) k.push("i:" + p.inspire);
+      if (p.id && /^\d+$/.test(String(p.id))) k.push("i:" + p.id);
+      if (p.doi) k.push("d:" + String(p.doi).toLowerCase());
+      if (p.arxiv) k.push("a:" + String(p.arxiv).toLowerCase());
+      return k;
+    },
+    find: function (p) {
+      var ks = HL.keys(p);
+      for (var i = 0; i < HL.papers.length; i++) {
+        var q = HL.papers[i]; if (!q.featured) continue;
+        if (HL.keys(q).some(function (k) { return ks.indexOf(k) > -1; })) return i;
+      }
+      return -1;
+    },
+    isFeatured: function (p) { return HL.find(p) > -1; },
+    renderFeatured: function () {}, renderList: function () {}
+  };
+
+  /* ---------- highlighted publications section ---------- */
   var feat = document.getElementById("pub-featured");
-  if (feat) {
-    getJSON("data/papers.json").then(function (ps) {
-      var f = ps.filter(function (p) { return p.featured; });
-      var max = parseInt(feat.getAttribute("data-limit") || "0", 10); if (max) f = f.slice(0, max);
-      feat.innerHTML = f.map(function (p) {
-        var url = p.doi ? "https://doi.org/" + p.doi : (p.arxiv ? "https://arxiv.org/abs/" + p.arxiv : p.url);
-        return '<li><span class="venue">' + esc(p.journal || p.year) + '</span><h3><a href="' + esc(url) + '" target="_blank" rel="noopener">' + esc(p.title) + '</a></h3><span class="who">' + esc(p.collab) + (p.note ? " · " + esc(p.note) : "") + "</span></li>";
-      }).join("");
-      feat.hidden = !f.length;
-    }).catch(function () { feat.hidden = true; });
-  }
+  HL.renderFeatured = function () {
+    if (!feat) return;
+    var f = HL.papers.filter(function (p) { return p.featured; });
+    var max = parseInt(feat.getAttribute("data-limit") || "0", 10); if (max) f = f.slice(0, max);
+    feat.innerHTML = f.map(function (p) {
+      var url = p.doi ? "https://doi.org/" + p.doi : (p.arxiv ? "https://arxiv.org/abs/" + p.arxiv : (p.url || (p.inspire ? "https://inspirehep.net/literature/" + p.inspire : "#")));
+      return '<li><span class="venue">' + esc(p.journal || p.year) + '</span><h3><a href="' + esc(url) + '" target="_blank" rel="noopener">' + esc(p.title) + '</a></h3><span class="who">' + esc(p.collab) + (p.note ? " · " + esc(p.note) : "") + "</span></li>";
+    }).join("");
+    feat.hidden = !f.length;
+  };
+  getJSON("data/papers.json").then(function (ps) {
+    HL.papers = ps; HL.renderFeatured(); HL.renderList();
+  }).catch(function () { if (feat) feat.hidden = true; });
 
   /* ---------- lazy YouTube embed ---------- */
   document.querySelectorAll(".video[data-yt]").forEach(function (box) {
@@ -296,7 +321,8 @@
       list.sort(state.sort === "cites" ? function (a, b) { return (b.cites || 0) - (a.cites || 0); } : function (a, b) { return b.date < a.date ? -1 : b.date > a.date ? 1 : 0; });
       var total = list.length;
       if (limit) list = list.slice(0, limit); else list = list.slice(0, shown);
-      pubList.innerHTML = list.map(function (p) {
+      HL.shown = list;
+      pubList.innerHTML = list.map(function (p, i) {
         var url = p.manual ? (p.url || "#") : (p.doi ? "https://doi.org/" + p.doi : (p.arxiv ? "https://arxiv.org/abs/" + p.arxiv : "https://inspirehep.net/literature/" + p.id));
         var src = [];
         if (p.lead) src.push('<span class="tag lead">Small-author</span>');
@@ -307,7 +333,8 @@
         if (p.arxiv) src.push('<a href="https://arxiv.org/abs/' + esc(p.arxiv) + '" target="_blank" rel="noopener">arXiv:' + esc(p.arxiv) + "</a>");
         if (p.note) src.push("<span>" + esc(p.note) + "</span>");
         if (p.id) src.push('<a href="https://inspirehep.net/literature/' + esc(p.id) + '" target="_blank" rel="noopener">INSPIRE</a>');
-        return '<li class="pub"><span class="yr">' + esc(p.year) + '</span><div><h3><a href="' + esc(url) + '" target="_blank" rel="noopener">' + esc(p.title) + '</a></h3><div class="src">' + src.join("") + '</div></div><div class="cites">' + (p.cites == null ? "" : p.cites + "<small>cites</small>") + "</div></li>";
+        return '<li class="pub"><span class="yr">' + esc(p.year) + '</span><div><h3><a href="' + esc(url) + '" target="_blank" rel="noopener">' + esc(p.title) + '</a></h3><div class="src">' + src.join("") + '</div></div><div class="cites">' + (p.cites == null ? "" : p.cites + "<small>cites</small>") +
+          (function () { var on = HL.isFeatured(p); return '<button type="button" class="hl-btn" data-i="' + i + '" aria-pressed="' + on + '" title="' + (on ? "Remove from Highlighted" : "Add to Highlighted") + '">' + (on ? "★" : "☆") + "</button>"; })() + "</div></li>";
       }).join("") || '<li class="pub"><span></span><p>No papers match that filter.</p></li>';
       if (statusEl) statusEl.textContent = limit ? "" : total + " record" + (total === 1 ? "" : "s") + (liveDone ? " · live from INSPIRE-HEP" : "");
       var more = document.getElementById("pub-more");
@@ -319,21 +346,10 @@
       return fetch(url, { headers: { Accept: "application/json" } }).then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); });
     }
 
-    // Papers you added by hand (data/papers.json) are merged with INSPIRE and never duplicated.
-    function manualToRecord(p) {
-      return { id: null, url: p.doi ? "https://doi.org/" + p.doi : (p.arxiv ? "https://arxiv.org/abs/" + p.arxiv : p.url),
-        title: p.title, collab: p.collab || "", journal: p.journal || "", arxiv: p.arxiv || "", doi: p.doi || "", cites: null,
-        year: String(p.year || ""), date: String(p.year || "0000"), authors: 0, type: p.type === "proc" ? "proc" : (p.type === "thesis" ? "thesis" : "article"),
-        lead: false, note: p.note || "", manual: true };
-    }
-    var manual = [], inspire = [];
-    function key(p) { return (p.arxiv || "").toLowerCase() || (p.doi || "").toLowerCase() || p.title.toLowerCase().replace(/[^a-z0-9]/g, ""); }
-    function merge() {
-      var seen = {};
-      inspire.forEach(function (p) { seen[(p.arxiv || "").toLowerCase()] = 1; seen[(p.doi || "").toLowerCase()] = 1; seen[p.title.toLowerCase().replace(/[^a-z0-9]/g, "")] = 1; });
-      all = inspire.concat(manual.filter(function (p) {
-        return !(p.arxiv && seen[p.arxiv.toLowerCase()]) && !(p.doi && seen[p.doi.toLowerCase()]) && !seen[p.title.toLowerCase().replace(/[^a-z0-9]/g, "")];
-      }));
+    // "All publications" comes only from INSPIRE-HEP: first the nightly copy saved in the site, then the live list.
+    var inspire = [], liveDone = false;
+    function show() {
+      all = inspire;
       var stats = document.getElementById("pub-stats");
       if (stats && inspire.length) {
         var c = inspire.reduce(function (s, p) { return s + p.cites; }, 0);
@@ -341,21 +357,19 @@
       }
       render();
     }
-    var liveDone = false;
-    getJSON("data/papers.json").then(function (m) { manual = m.map(manualToRecord); }).catch(function () {})
-      .then(function () {
-        // 1) instant: the nightly copy saved in the site; 2) then the live list from INSPIRE
-        getJSON("data/publications.json").then(function (d) {
-          if (liveDone) return;
-          var hits = (d.hits && d.hits.hits) || [];
-          if (hits.length) inspire = hits.map(normalise);
-          merge();
-          if (statusEl && !limit && d.updated) statusEl.textContent = all.length + " records · updated " + d.updated.slice(0, 10);
-        }).catch(function () { if (!liveDone) merge(); });
-        return fetchJSON("authors.recid:" + AUTHOR_RECID)
-          .then(function (d) { return d.hits && d.hits.total ? d : fetchJSON("a Haradhan.Adhikary.1"); })
-          .then(function (d) { liveDone = true; var h = (d.hits.hits || []).map(normalise); if (h.length) inspire = h; merge(); })
-          .catch(function () { if (statusEl && !inspire.length) statusEl.textContent = "Couldn't reach INSPIRE-HEP just now. Showing saved papers."; });
+    HL.renderList = function () { if (all.length) render(); };
+    getJSON("data/publications.json").then(function (d) {
+      if (liveDone) return;
+      var hits = (d.hits && d.hits.hits) || [];
+      if (!hits.length) return;
+      inspire = hits.map(normalise); show();
+      if (statusEl && !limit && d.updated) statusEl.textContent = all.length + " records · saved " + d.updated.slice(0, 10) + " · refreshing…";
+    }).catch(function () {});
+    fetchJSON("authors.recid:" + AUTHOR_RECID)
+      .then(function (d) { return d.hits && d.hits.total ? d : fetchJSON("a Haradhan.Adhikary.1"); })
+      .then(function (d) { liveDone = true; var h = (d.hits.hits || []).map(normalise); if (h.length) { inspire = h; show(); } })
+      .catch(function () {
+        if (statusEl && !inspire.length) statusEl.innerHTML = 'Couldn\'t reach INSPIRE-HEP just now. <a href="https://inspirehep.net/authors/' + AUTHOR_RECID + '" target="_blank" rel="noopener">See the full list on INSPIRE-HEP</a>.';
       });
 
     var search = document.getElementById("pub-search");

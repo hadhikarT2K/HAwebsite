@@ -511,3 +511,14 @@ main { display: block; }
   .nav.open { display: flex; }
   .nav a { padding: 12px 8px; font-size: 1rem; }
 }
+
+/* ---------- highlight stars (owner only) ---------- */
+.hl-btn { display: none; margin-top: 8px; width: 34px; height: 34px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--muted); font-size: 1.05rem; cursor: pointer; place-items: center; }
+.is-owner .hl-btn { display: inline-grid; }
+.hl-btn:hover { border-color: var(--gold); color: var(--gold); }
+.hl-btn[aria-pressed="true"] { color: var(--gold); border-color: var(--gold); background: color-mix(in srgb, var(--gold) 12%, var(--surface)); }
+.hl-btn:disabled { opacity: .5; cursor: wait; }
+.cites { display: grid; justify-items: end; align-content: start; }
+#owner-toast { position: fixed; left: 16px; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); z-index: 70; max-width: min(420px, calc(100vw - 32px)); padding: 12px 16px; border-radius: 10px; background: var(--ink); color: var(--bg); font-size: .92rem; box-shadow: var(--shadow); }
+#owner-toast.err { background: #c2352b; color: #fff; }
+.row-btns { display: flex; gap: 6px; flex: none; }

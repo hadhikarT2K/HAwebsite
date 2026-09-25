@@ -20,9 +20,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Spectral:wght@500;600&display=swap">
-  <link rel="stylesheet" href="assets/css/style.css?v=20260925d">
-  <script src="assets/js/main.js?v=20260925d" defer></script>
-  <script src="assets/js/admin.js?v=20260925d" defer></script>
+  <link rel="stylesheet" href="assets/css/style.css?v=20260925e">
+  <script src="assets/js/main.js?v=20260925e" defer></script>
+  <script src="assets/js/admin.js?v=20260925e" defer></script>
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
@@ -114,8 +114,8 @@
       <section class="section" id="papers">
         <div class="wrap admin-grid">
           <div class="admin-card">
-            <h2>Add a paper</h2>
-            <p class="muted">Papers on INSPIRE-HEP appear automatically. Add anything else here: a paper not yet on INSPIRE, a preprint, a thesis or a note.</p>
+            <h2>Add a highlighted paper</h2>
+            <p class="muted"><strong>For papers on INSPIRE-HEP:</strong> open the <a href="publications.html">Publications</a> page and tap ☆ next to the paper. <strong>For anything else</strong> (a thesis, a paper not yet on INSPIRE), add it here.</p>
             <form id="paper-lookup" class="form inline">
               <label for="lookup-id">Fill in from arXiv number or DOI</label>
               <div class="inline-row"><input id="lookup-id" placeholder="2401.03445 or 10.1140/epjc/…"><button class="btn" type="submit">Fetch details</button></div>
@@ -136,12 +136,13 @@
                 <div><label for="p-type">Type</label><select id="p-type"><option value="article">Article</option><option value="proc">Proceedings</option><option value="preprint">Preprint</option><option value="thesis">Thesis</option></select></div>
                 <div><label for="p-note">Note</label><input id="p-note" placeholder="Under review"></div>
               </div>
-              <button class="btn primary" type="submit">Add paper</button>
+              <button class="btn primary" type="submit">Add to Highlighted</button>
               <p class="msg" id="paper-msg" role="status"></p>
             </form>
           </div>
           <div class="admin-card">
-            <h2>Papers you added</h2>
+            <h2>Highlighted papers</h2>
+            <p class="muted">Shown in this order. The first four appear on the home page.</p>
             <ul id="paper-admin" class="admin-list"></ul>
           </div>
         </div>
