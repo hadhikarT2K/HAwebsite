@@ -355,3 +355,101 @@
     if (moreBtn) moreBtn.addEventListener("click", function () { shown += 25; render(); });
   }
 })();
+
+/* ---------- crossing fields: heavy-ion collision → one neutrino ring ---------- */
+(function () {
+  "use strict";
+  var cv = document.getElementById("crossing-canvas");
+  if (!cv || !cv.getContext) return;
+  var ctx = cv.getContext("2d");
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var W, H, tracks = [], pmts = [], ring = [], seed = 11, CYCLE = 9000;
+  function rnd() { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }
+  var warm = ["#ffb347", "#ff8a4c", "#ffd36b", "#ff6f61", "#f6c35b"];
+  var ringStops = [[25, 195, 255], [61, 255, 160], [255, 225, 77]];
+  function rc(x) { x = Math.max(0, Math.min(.999, x)) * 2; var i = Math.floor(x), f = x - i, a = ringStops[i], b = ringStops[i + 1]; return "rgb(" + (a[0] + (b[0] - a[0]) * f | 0) + "," + (a[1] + (b[1] - a[1]) * f | 0) + "," + (a[2] + (b[2] - a[2]) * f | 0) + ")"; }
+
+  function geom() { var m = W < 560; return { vx: W * (m ? .24 : .2), vy: H * .5, rx: W * (m ? .73 : .79), ry: H * .5, R: Math.min(H * .3, W * (m ? .19 : .13)) }; }
+
+  function build() {
+    var r = cv.getBoundingClientRect(), dpr = Math.min(window.devicePixelRatio || 1, 2);
+    W = Math.max(1, r.width); H = Math.max(1, r.height);
+    cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    seed = 11; tracks = []; pmts = []; ring = [];
+    var g = geom(), n = W < 500 ? 90 : 170, reach = Math.min(W * .19, H * .46);
+    for (var i = 0; i < n; i++) {
+      var ang = rnd() * Math.PI * 2, len = reach * (.35 + rnd() * .75), curv = (rnd() - .5) * (rnd() < .3 ? .03 : .008);
+      tracks.push({ a: ang, len: len, k: curv, c: warm[(rnd() * warm.length) | 0], w: .6 + rnd() * .9, d: rnd() * .35 });
+    }
+    var pitch = Math.max(8, Math.min(W, H) / 26), half = g.R * 1.9;
+    for (var y = g.ry - half; y <= g.ry + half; y += pitch * .866) {
+      var row = Math.round((y - g.ry) / (pitch * .866));
+      for (var x = g.rx - half + (row % 2 ? pitch / 2 : 0); x <= g.rx + half; x += pitch) pmts.push({ x: x, y: y });
+    }
+    pmts.forEach(function (p) {
+      var dx = p.x - g.rx, dy = p.y - g.ry, d = Math.sqrt(dx * dx + dy * dy), on = Math.exp(-Math.pow((d - g.R) / Math.max(g.R * .07, pitch * .55), 2));
+      if (rnd() < on * .95) ring.push({ x: p.x, y: p.y, t: .5 + .4 * Math.cos(Math.atan2(dy, dx) - .6), q: .6 + rnd() * .6, d: rnd() });
+    });
+    cv._pitch = pitch;
+  }
+
+  function trackPath(t, frac) {
+    var g = geom(), x = g.vx, y = g.vy, a = t.a, steps = 18, ds = t.len * frac / steps;
+    ctx.beginPath(); ctx.moveTo(x, y);
+    for (var i = 0; i < steps; i++) { a += t.k * ds; x += Math.cos(a) * ds; y += Math.sin(a) * ds; ctx.lineTo(x, y); }
+  }
+
+  function draw(ms) {
+    var g = geom(), p = ms / CYCLE;                       // p in [0,1): burst → neutrino → ring → hold
+    var burst = Math.min(1, p / .22), nu = Math.max(0, Math.min(1, (p - .24) / .22)), glow = Math.max(0, Math.min(1, (p - .44) / .14));
+    var fade = p > .9 ? 1 - (p - .9) / .1 : 1;
+    ctx.fillStyle = "#070b14"; ctx.fillRect(0, 0, W, H);
+    // faint TPC outline on the left, detector wall on the right
+    ctx.strokeStyle = "rgba(255,190,110,.10)"; ctx.lineWidth = 1;
+    ctx.strokeRect(g.vx - W * .17, g.vy - H * .4, W * .34, H * .8);
+    ctx.fillStyle = "#172038";
+    var pr = cv._pitch * .33;
+    pmts.forEach(function (q) { ctx.beginPath(); ctx.arc(q.x, q.y, pr, 0, 6.283); ctx.fill(); });
+    // heavy-ion tracks
+    ctx.lineCap = "round";
+    tracks.forEach(function (t) {
+      var f = Math.max(0, Math.min(1, (burst - t.d) / (1 - t.d)));
+      if (f <= 0) return;
+      ctx.globalAlpha = .75 * fade; ctx.strokeStyle = t.c; ctx.lineWidth = t.w;
+      trackPath(t, f); ctx.stroke();
+    });
+    ctx.globalAlpha = fade; ctx.fillStyle = "#fff4e0";
+    ctx.beginPath(); ctx.arc(g.vx, g.vy, 3, 0, 6.283); ctx.fill();
+    // the neutrino: invisible in reality, drawn dashed
+    if (nu > 0) {
+      var x0 = g.vx + W * .02, x1 = g.rx - g.R * .15, xe = x0 + (x1 - x0) * nu;
+      ctx.globalAlpha = .9 * fade; ctx.setLineDash([6, 7]); ctx.strokeStyle = "#9fb6ff"; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(x0, g.vy); ctx.lineTo(xe, g.ry); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle = "#cfdcff"; ctx.beginPath(); ctx.arc(xe, g.ry, 2.5, 0, 6.283); ctx.fill();
+      ctx.font = "600 " + Math.max(13, H * .06) + "px Spectral, Georgia, serif"; ctx.fillStyle = "#cfdcff";
+      ctx.fillText("ν", (x0 + x1) / 2 - 5, g.vy - 10);
+    }
+    // Cherenkov ring
+    ring.forEach(function (h) {
+      var a = Math.max(0, Math.min(1, (glow - h.d * .5) / .5)); if (a <= 0) return;
+      ctx.globalAlpha = a * fade; ctx.fillStyle = rc(h.t);
+      ctx.beginPath(); ctx.arc(h.x, h.y, pr * (.6 + h.q * .5), 0, 6.283); ctx.fill();
+    });
+    ctx.globalAlpha = 1;
+  }
+
+  var start = 0, running = false, visible = true, raf;
+  var HOLD = .8 * CYCLE;                                   // the complete picture
+  function loop(now) {
+    if (!running) return;
+    draw((now - start) % CYCLE);
+    raf = requestAnimationFrame(loop);
+  }
+  function play() { if (reduce || running || !visible) return; running = true; start = performance.now() - HOLD; raf = requestAnimationFrame(loop); }
+  function stop() { running = false; cancelAnimationFrame(raf); }
+  build(); draw(HOLD);
+  if ("IntersectionObserver" in window) {
+    new IntersectionObserver(function (e) { visible = e[0].isIntersecting; visible ? play() : stop(); }, { threshold: .2 }).observe(cv);
+  } else play();
+  var rt; window.addEventListener("resize", function () { clearTimeout(rt); rt = setTimeout(function () { build(); if (!running) draw(HOLD); }, 150); });
+})();
