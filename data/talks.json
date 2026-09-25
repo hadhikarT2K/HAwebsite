@@ -16,5 +16,14 @@
   "title": "",
   "description": "Talk on proton intermittency measurements with NA61/SHINE.",
   "url": "https://events.vecc.gov.in/event/19/contributions/890/"
+ },
+ {
+  "id": "nuflux-workshop-on-accelerator-and-atmos-mugxypi8",
+  "date": "09.03.2026",
+  "event": "NuFlux: Workshop on Accelerator and Atmospheric Neutrino Flux Determination",
+  "place": "Notre Dame, USA",
+  "title": "Neutrino Flux Prediction and Uncertainties in T2K",
+  "description": "Invited talk on behalf of the T2K Collaboration.\nThis workshop brought together experts from the neutrino physics community to discuss flux prediction methodologies for accelerator, atmospheric, and spallation neutrinos. The presented talk focused on the latest T2K flux predictions and associated systematic uncertainties.",
+  "url": "https://indico.fnal.gov/event/71283/contributions/334500/"
  }
 ]
