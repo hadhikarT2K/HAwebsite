@@ -96,5 +96,15 @@
   "title": "",
   "description": "",
   "url": "http://lambda.phys.tohoku.ac.jp/snpsc2020/"
+ },
+ {
+  "id": "nuflux-2026-muh1ljlz",
+  "kind": "invited",
+  "date": "09.03.2026",
+  "event": "NUFlux 2026",
+  "place": "Notre Dame, USA",
+  "title": "Neutrino Flux Prediction and Uncertainties in T2K",
+  "description": "This workshop brought together experts from the neutrino physics community to discuss flux prediction methodologies for accelerator, atmospheric, and spallation neutrinos. The presented talk focused on the latest T2K flux predictions and associated systematic uncertainties.",
+  "url": "https://indico.fnal.gov/event/71283/contributions/334500/"
  }
 ]
