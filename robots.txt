@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://hadhikart2k.github.io/HAwebsite/sitemap.xml
