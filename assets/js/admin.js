@@ -265,7 +265,7 @@
   document.getElementById("talk-form").addEventListener("submit", function (e) {
     e.preventDefault();
     var v = function (k) { return document.getElementById(k).value.trim(); };
-    var t = { id: slug(v("t-event")) + "-" + Date.now().toString(36), date: v("t-date"), event: v("t-event"), place: v("t-place"), title: v("t-title"), description: v("t-desc"), url: v("t-url") };
+    var t = { id: slug(v("t-event")) + "-" + Date.now().toString(36), kind: v("t-kind"), date: v("t-date"), event: v("t-event"), place: v("t-place"), title: v("t-title"), description: v("t-desc"), url: v("t-url") };
     var btn = e.target.querySelector("button[type=submit]"); btn.disabled = true; msg("talk-msg", "Saving…");
     readJSON("data/talks.json").then(function (cur) {
       cur.push(t); cur.sort(function (a, b) { return String(b.date).localeCompare(String(a.date)); }); talks = cur;

@@ -205,16 +205,39 @@
   if (talkList) {
     var MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
     var fmtDate = function (d) { var m = /^(\d{4})-(\d{2})/.exec(d || ""); return m ? MONTHS[+m[2] - 1] + " " + m[1] : (d || ""); };
+    var KINDS = [["invited", "Invited talks"], ["talk", "Conference talks"], ["school", "Schools"], ["poster", "Posters"]];
+    function card(x) {
+      return '<article class="card"><span class="meta">' + esc([fmtDate(x.date), x.place].filter(Boolean).join(" · ")) + "</span>" +
+        "<h3>" + esc(x.title || x.event) + "</h3>" +
+        (x.title ? "<p><strong>" + esc(x.event) + "</strong></p>" : "") +
+        (x.description ? "<p>" + esc(x.description) + "</p>" : "") +
+        '<div class="foot">' + (x.url ? '<a class="link-arrow" href="' + esc(x.url) + '" target="_blank" rel="noopener">Details</a>' : "") +
+        (x.proceedings && x.proceedings.url ? '<a class="proc" href="' + esc(x.proceedings.url) + '" target="_blank" rel="noopener">Proceedings: ' + esc(x.proceedings.label || "link") + "</a>" : "") + "</div></article>";
+    }
     getJSON("data/talks.json").then(function (t) {
       t.sort(function (a, b) { return String(b.date).localeCompare(String(a.date)); });
-      talkList.innerHTML = t.map(function (x) {
-        return '<article class="card"><span class="meta">' + esc([fmtDate(x.date), x.place].filter(Boolean).join(" · ")) + "</span>" +
-          "<h3>" + esc(x.title || x.event) + "</h3>" +
-          (x.title ? '<p><strong>' + esc(x.event) + "</strong></p>" : "") +
-          (x.description ? "<p>" + esc(x.description) + "</p>" : "") +
-          (x.url ? '<div class="foot"><a class="link-arrow" href="' + esc(x.url) + '" target="_blank" rel="noopener">Details</a></div>' : "") + "</article>";
-      }).join("") || '<p class="pub-status">No talks listed yet.</p>';
+      var html = KINDS.map(function (k) {
+        var items = t.filter(function (x) { return (x.kind || "talk") === k[0]; });
+        if (!items.length) return "";
+        return '<section class="talk-group"><h2>' + k[1] + ' <span class="n">' + items.length + '</span></h2><div class="cards">' + items.map(card).join("") + "</div></section>";
+      }).join("");
+      talkList.classList.remove("cards");
+      talkList.innerHTML = html || '<p class="pub-status">No talks listed yet.</p>';
     }).catch(function () { talkList.innerHTML = '<p class="pub-status">Couldn\'t load talks. Please refresh the page.</p>'; });
+  }
+
+  /* ---------- highlighted publications (featured in data/papers.json) ---------- */
+  var feat = document.getElementById("pub-featured");
+  if (feat) {
+    getJSON("data/papers.json").then(function (ps) {
+      var f = ps.filter(function (p) { return p.featured; });
+      var max = parseInt(feat.getAttribute("data-limit") || "0", 10); if (max) f = f.slice(0, max);
+      feat.innerHTML = f.map(function (p) {
+        var url = p.doi ? "https://doi.org/" + p.doi : (p.arxiv ? "https://arxiv.org/abs/" + p.arxiv : p.url);
+        return '<li><span class="venue">' + esc(p.journal || p.year) + '</span><h3><a href="' + esc(url) + '" target="_blank" rel="noopener">' + esc(p.title) + '</a></h3><span class="who">' + esc(p.collab) + (p.note ? " · " + esc(p.note) : "") + "</span></li>";
+      }).join("");
+      feat.hidden = !f.length;
+    }).catch(function () { feat.hidden = true; });
   }
 
   /* ---------- lazy YouTube embed ---------- */

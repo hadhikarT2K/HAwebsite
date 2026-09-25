@@ -1,19 +1,83 @@
 [
  {
-  "id": "na61-cp-2024",
-  "title": "Search for a critical point of strongly interacting matter",
-  "collab": "NA61/SHINE",
-  "journal": "Eur. Phys. J. C 84 (2024)",
-  "year": "2024",
-  "arxiv": "2401.03445",
-  "doi": "",
+  "id": "t2k-nova-nature-2025",
+  "title": "Joint neutrino oscillation analysis from the T2K and NOvA experiments",
+  "collab": "T2K and NOvA Collaborations",
+  "journal": "Nature 646, 818–824 (2025)",
+  "year": "2025",
+  "arxiv": "",
+  "doi": "10.1038/s41586-025-09599-3",
   "url": "",
   "type": "article",
-  "note": ""
+  "note": "",
+  "featured": true
+ },
+ {
+  "id": "na61-isospin-2025",
+  "title": "Evidence of isospin-symmetry violation in high-energy collisions of atomic nuclei",
+  "collab": "NA61/SHINE Collaboration",
+  "journal": "Nature Communications 16, 2849 (2025)",
+  "year": "2025",
+  "arxiv": "",
+  "doi": "10.1038/s41467-025-57234-6",
+  "url": "",
+  "type": "article",
+  "note": "",
+  "featured": true
+ },
+ {
+  "id": "na61-cp-arsc-2024",
+  "title": "Search for a critical point of strongly-interacting matter in central Ar+Sc collisions at 13A–75A GeV/c beam momentum",
+  "collab": "NA61/SHINE Collaboration",
+  "journal": "Eur. Phys. J. C 84 (2024) 741",
+  "year": "2024",
+  "arxiv": "",
+  "doi": "10.1140/epjc/s10052-024-13012-0",
+  "url": "",
+  "type": "article",
+  "note": "Main result of my PhD analysis",
+  "featured": true
+ },
+ {
+  "id": "phd-thesis-2024",
+  "title": "Search for the critical point of strongly interacting matter (proton intermittency by NA61/SHINE at the CERN SPS)",
+  "collab": "H. Adhikary",
+  "journal": "PhD thesis, Jan Kochanowski University, Kielce",
+  "year": "2024",
+  "arxiv": "",
+  "doi": "",
+  "url": "https://cds.cern.ch/record/2895171",
+  "type": "thesis",
+  "note": "",
+  "featured": true
+ },
+ {
+  "id": "confinement-xv-proc",
+  "title": "Search for the critical point of strongly interacting matter",
+  "collab": "H. Adhikary for the NA61/SHINE Collaboration",
+  "journal": "EPJ Web Conf. 274 (2022) 06008",
+  "year": "2022",
+  "arxiv": "2211.10504",
+  "doi": "",
+  "url": "",
+  "type": "proc",
+  "note": "Confinement XV proceedings"
+ },
+ {
+  "id": "icnfp-2021-proc",
+  "title": "Search for the QCD critical point by NA61/SHINE at the CERN SPS",
+  "collab": "H. Adhikary for the NA61/SHINE Collaboration",
+  "journal": "",
+  "year": "2023",
+  "arxiv": "2308.04254",
+  "doi": "",
+  "url": "",
+  "type": "proc",
+  "note": "ICNFP 2021 proceedings"
  },
  {
   "id": "na61-intermittency",
-  "title": "Proton intermittency in NA61/SHINE experiments",
+  "title": "NA61/SHINE collaboration publications (co-author)",
   "collab": "NA61/SHINE",
   "journal": "",
   "year": "",
@@ -21,6 +85,6 @@
   "doi": "",
   "url": "https://cernbox.cern.ch/s/Y0DgqBxpvrNascb",
   "type": "article",
-  "note": "Under review · collaboration results"
+  "note": "Full list of collaboration papers"
  }
 ]

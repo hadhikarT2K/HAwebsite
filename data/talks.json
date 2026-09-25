@@ -1,38 +1,100 @@
 [
  {
-  "id": "emmi-2023",
+  "id": "emmi-rrtf-2023",
   "date": "2023-11",
-  "event": "ExtreMe Matter Institute (EMMI) workshop",
-  "place": "GSI Darmstadt",
+  "kind": "invited",
+  "event": "EMMI Rapid Reaction Task Force (RRTF)",
+  "place": "GSI Darmstadt, Germany",
   "title": "",
-  "description": "Talk on NA61/SHINE results in the search for the critical point of strongly interacting matter.",
+  "description": "Invited talk at the ExtreMe Matter Institute task force meeting, 6–11 November 2023.",
   "url": "https://indico.gsi.de/event/18508/contributions/75351/"
  },
  {
   "id": "icpaqgp-2023",
   "date": "2023",
-  "event": "8th International Conference on Physics and Astrophysics of Quark Gluon Plasma (ICPAQGP)",
-  "place": "",
+  "kind": "talk",
+  "event": "8th International Conference on Physics and Astrophysics of Quark Gluon Plasma (ICPAQGP-2023)",
+  "place": "India",
   "title": "",
-  "description": "Talk on proton intermittency measurements with NA61/SHINE.",
+  "description": "",
   "url": "https://events.vecc.gov.in/event/19/contributions/890/"
  },
  {
-  "id": "seminarium-fizyki-wielkich-energii-mugy0nrs",
-  "date": "20.03.2026",
-  "event": "Seminarium Fizyki Wielkich Energii",
-  "place": "University of Warsaw, Faculty of Physics",
-  "title": "Neutrino Flux Prediction and Uncertainties in T2K",
-  "description": "Delivered an institutional research seminar presenting ongoing work and developments in neutrino flux and oscillation physics.",
-  "url": "https://m.fuw.edu.pl/event-reader/event10916.html"
+  "id": "xqcd-2023",
+  "date": "2023",
+  "kind": "poster",
+  "event": "19th International Conference on QCD in Extreme Conditions (XQCD 2023)",
+  "place": "",
+  "title": "",
+  "description": "",
+  "url": "https://indico.cern.ch/event/1198629/contributions/5432964/"
  },
  {
-  "id": "nuflux-workshop-on-accelerator-and-atmos-mugxypi8",
-  "date": "09.03.2026",
-  "event": "NuFlux: Workshop on Accelerator and Atmospheric Neutrino Flux Determination",
-  "place": "Notre Dame, USA",
-  "title": "Neutrino Flux Prediction and Uncertainties in T2K",
-  "description": "Invited talk on behalf of the T2K Collaboration.\nThis workshop brought together experts from the neutrino physics community to discuss flux prediction methodologies for accelerator, atmospheric, and spallation neutrinos. The presented talk focused on the latest T2K flux predictions and associated systematic uncertainties.",
-  "url": "https://indico.fnal.gov/event/71283/contributions/334500/"
+  "id": "confinement-xv-2022",
+  "date": "2022",
+  "kind": "talk",
+  "event": "XVth Quark Confinement and the Hadron Spectrum (Confinement XV)",
+  "place": "Stavanger, Norway",
+  "title": "Search for the critical point of strongly interacting matter",
+  "description": "",
+  "url": "https://indico.uis.no/event/2/contributions/587/",
+  "proceedings": {
+   "label": "EPJ Web Conf. 274 (2022) 06008",
+   "url": "https://arxiv.org/abs/2211.10504"
+  }
+ },
+ {
+  "id": "qm-2022",
+  "date": "2022",
+  "kind": "poster",
+  "event": "Quark Matter 2022",
+  "place": "Kraków, Poland",
+  "title": "",
+  "description": "",
+  "url": "https://indico.cern.ch/event/895086/"
+ },
+ {
+  "id": "zimanyi-2021",
+  "date": "2021-12",
+  "kind": "talk",
+  "event": "21st Zimányi School Winter Workshop on Heavy Ion Physics",
+  "place": "Budapest, Hungary",
+  "title": "",
+  "description": "",
+  "url": "https://indico.cern.ch/event/1097820/contributions/4623132/"
+ },
+ {
+  "id": "icnfp-2021",
+  "date": "2021",
+  "kind": "talk",
+  "event": "10th International Conference on New Frontiers in Physics (ICNFP 2021)",
+  "place": "Kolymbari, Crete, Greece",
+  "title": "Search for the QCD critical point by the NA61/SHINE experiment",
+  "description": "",
+  "url": "https://indico.cern.ch/event/1025480/contributions/4456978/",
+  "proceedings": {
+   "label": "arXiv:2308.04254",
+   "url": "https://arxiv.org/abs/2308.04254"
+  }
+ },
+ {
+  "id": "erice-2021",
+  "date": "2021",
+  "kind": "school",
+  "event": "International School of Nuclear Physics, Erice 2021",
+  "place": "Erice, Sicily, Italy",
+  "title": "",
+  "description": "",
+  "url": "https://theorie.ikp.physik.tu-darmstadt.de/erice/2021/sec/program_2021.php"
+ },
+ {
+  "id": "snp-2020",
+  "date": "2020",
+  "kind": "school",
+  "event": "International SNP School 2020",
+  "place": "J-PARC, Tokai, Japan",
+  "title": "",
+  "description": "",
+  "url": "http://lambda.phys.tohoku.ac.jp/snpsc2020/"
  }
 ]
