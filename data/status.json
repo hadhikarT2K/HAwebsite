@@ -25,5 +25,17 @@
    "description": "Reproducing the SK+T2K joint analysis in the p-theta framework."
   }
  ],
- "weeks": []
+ "weeks": [
+  {
+   "week": "2026-W39",
+   "private": true,
+   "enc": {
+    "v": 1,
+    "salt": "fi3rcJN14vEibBH/e3VlDA==",
+    "iv": "F666nWntTZQe1Tnc",
+    "data": "j5WVO9NwIbLm5tQGOUBydKF+8Gn0an2TqYCemI/DY76Mi58cbcMfnlpBCbX7vs7gQI7Y0gatP8z9bGEC/0/Jxrs7PprTco9e6kcl67PHANdQ39eYTSsy4DqlFQsEM26hK8sTz0gJypEe/GbHSk3dc9/LF2HbfgQhizQ1Ff/xabc741/z82MdYruLFpemQNnAdiv0U9OdUozhxaFamBvU6/ESa/oU8zmflt4NFnR/rc4rsU5cnAfkqNgL2oEySk7oxp3UlbzsXgIDG+ofyHI//3VsvkeWQvLeINL2ZT0V4oN7oo+WxviWcJj38ueH2ouTLmI7rIIHZnlpA4Eln655M9ELHS0XnMIDedirSTxZG8QesWLxsDqzQFDWSGw1mNrZnGqz7SOoMKp9f/1gxR98XjJb+qLjV+Va/JuVKshjDWPehlW27vngciwe8elIxUPnDVRFPGs7QA4RkRqlZIJERtD/UeckH5CAnzbMv0DwwZpkJeg+JV5bHf6PdWy2Bdi9zdxNAxNg0AVCZuVmqqlBC8SjP8UQ6yiop4lUCpfxwEMJdT64Z9Z8cAQP+ZBTXclZZ2SmTB3WQf9fSraUgVobZYBviwpz"
+   },
+   "updated": "2026-09-27T19:06:47.604Z"
+  }
+ ]
 }
