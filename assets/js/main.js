@@ -137,7 +137,8 @@
   if (strip) {
     getJSON("data/gallery.json").then(function (g) {
       if (!g.length) return;
-      strip.innerHTML = g.slice(0, 6).map(function (p) {
+      var picks = g.filter(function (p) { return p.home; }).concat(g.filter(function (p) { return !p.home; })).slice(0, 6);
+      strip.innerHTML = picks.map(function (p) {
         return '<a href="gallery.html"><img src="' + esc(p.thumb) + '" alt="' + esc(p.caption) + '" loading="lazy" width="' + (p.w || 480) + '" height="' + (p.h || 640) + '"></a>';
       }).join("");
     }).catch(function () {});
@@ -151,7 +152,8 @@
         return c[0] === "all" || g.some(function (p) { return p.category === c[0]; });
       });
       document.getElementById("gallery-filters").innerHTML = cats.map(function (c, i) {
-        return '<button type="button" data-filter="' + c[0] + '" aria-pressed="' + (i === 0) + '">' + c[1] + "</button>";
+        var n = c[0] === "all" ? g.length : g.filter(function (p) { return p.category === c[0]; }).length;
+        return '<button type="button" data-filter="' + c[0] + '" aria-pressed="' + (i === 0) + '">' + c[1] + ' <span class="n">' + n + "</span></button>";
       }).join("");
       grid.innerHTML = g.map(function (p) {
         var cap = p.caption || "";
@@ -164,13 +166,30 @@
   function initGallery() {
     var items = Array.prototype.slice.call(grid.querySelectorAll("figure"));
     var filterBtns = document.querySelectorAll("#gallery-filters button");
+    var PAGE = 48, limit = PAGE, cur = "all";
+    var more = document.createElement("div"); more.className = "more-row";
+    more.innerHTML = '<button class="btn" type="button" id="gallery-more"></button>';
+    grid.parentNode.insertBefore(more, grid.nextSibling);
+    var moreBtn = more.querySelector("button");
+    function apply() {
+      var shown = 0, total = 0;
+      items.forEach(function (it) {
+        var match = cur === "all" || it.getAttribute("data-cat") === cur;
+        if (match) total++;
+        it.hidden = !(match && shown < limit); if (!it.hidden) shown++;
+      });
+      more.hidden = shown >= total;
+      moreBtn.textContent = "Show more (" + (total - shown) + " more)";
+    }
+    moreBtn.addEventListener("click", function () { limit += PAGE; apply(); });
     filterBtns.forEach(function (b) {
       b.addEventListener("click", function () {
-        var f = b.getAttribute("data-filter");
+        cur = b.getAttribute("data-filter"); limit = PAGE;
         filterBtns.forEach(function (x) { x.setAttribute("aria-pressed", x === b ? "true" : "false"); });
-        items.forEach(function (it) { it.hidden = !(f === "all" || it.getAttribute("data-cat") === f); });
+        apply();
       });
     });
+    apply();
 
     var lb = document.getElementById("lightbox"), lbImg = lb.querySelector("img"), lbCap = lb.querySelector("figcaption");
     var idx = 0, lastFocus = null;
@@ -212,6 +231,7 @@
         (x.title ? "<p><strong>" + esc(x.event) + "</strong></p>" : "") +
         (x.description ? "<p>" + esc(x.description) + "</p>" : "") +
         '<div class="foot">' + (x.url ? '<a class="link-arrow" href="' + esc(x.url) + '" target="_blank" rel="noopener">Details</a>' : "") +
+        (x.slides ? '<a class="link-arrow" href="' + esc(x.slides) + '" target="_blank" rel="noopener">Slides</a>' : "") +
         (x.proceedings && x.proceedings.url ? '<a class="proc" href="' + esc(x.proceedings.url) + '" target="_blank" rel="noopener">Proceedings: ' + esc(x.proceedings.label || "link") + "</a>" : "") + "</div></article>";
     }
     getJSON("data/talks.json").then(function (t) {

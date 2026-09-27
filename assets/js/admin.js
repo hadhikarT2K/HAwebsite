@@ -124,6 +124,8 @@
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
   function slug(s) { return String(s).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40) || "item"; }
   function stamp() { var d = new Date(), p = function (n) { return (n < 10 ? "0" : "") + n; }; return d.getFullYear() + p(d.getMonth() + 1) + p(d.getDate()) + "-" + p(d.getHours()) + p(d.getMinutes()) + p(d.getSeconds()); }
+  var MAX_FILE = 45 * 1048576;
+  function ext(name) { return ((name.split(".").pop() || "bin").toLowerCase().replace(/[^a-z0-9]/g, "")) || "bin"; }
   var LIVE_NOTE = " Live on the site in about 2 minutes.";
 
   /* ---------- unlock ---------- */
@@ -137,7 +139,7 @@
     }).then(function (u) {
       unlockSec.hidden = true; app.hidden = false;
       document.getElementById("admin-who").textContent = "Signed in" + (u.login ? " as " + u.login : "") + " · " + REPO.owner + "/" + REPO.repo;
-      loadGallery(); loadPapers(); loadTalks();
+      loadGallery(); loadPapers(); loadTalks(); loadStatus();
       if (location.hash) { var t = document.querySelector(location.hash); if (t) t.scrollIntoView(); }
     });
   }
@@ -201,6 +203,7 @@
         return '<div class="admin-thumb" data-i="' + i + '"><img src="' + esc(p.thumb) + '" alt="" loading="lazy">' +
           '<input data-f="caption" value="' + esc(p.caption) + '" aria-label="Caption">' +
           '<select data-f="category" aria-label="Category">' + ["science", "people", "travel"].map(function (c) { return "<option" + (c === p.category ? " selected" : "") + ">" + c + "</option>"; }).join("") + "</select>" +
+          '<label><input type="checkbox" data-f="home"' + (p.home ? " checked" : "") + '> Home page</label>' +
           '<label><input type="checkbox" data-f="remove"> Remove</label></div>';
       }).join("") || '<p class="muted">No photos yet.</p>';
       galleryDirty = false; saveBtn.disabled = true;
@@ -223,6 +226,7 @@
       }
       p.caption = card.querySelector('[data-f="caption"]').value.trim();
       p.category = card.querySelector('[data-f="category"]').value;
+      if (card.querySelector('[data-f="home"]').checked) p.home = true; else delete p.home;
       keep.push(p);
     });
     changes.push({ path: "data/gallery.json", text: JSON.stringify(keep, null, 1) + "\n" });
@@ -300,11 +304,31 @@
   var talks = [];
   function renderTalks() {
     document.getElementById("talk-admin").innerHTML = talks.map(function (t, i) {
-      return '<li><div><span class="t">' + esc(t.title || t.event) + "</span><small>" + esc([t.date, t.title ? t.event : "", t.place].filter(Boolean).join(" · ")) + '</small></div><button type="button" data-del="' + i + '">Delete</button></li>';
+      return '<li><div><span class="t">' + esc(t.title || t.event) + "</span><small>" + esc([t.date, t.title ? t.event : "", t.place].filter(Boolean).join(" · ")) + (t.slides ? " · 📎 slides" : "") + '</small></div><span class="row-btns"><button type="button" data-slides="' + i + '">' + (t.slides ? "Replace slides" : "Slides") + '</button><button type="button" data-del="' + i + '">Delete</button></span></li>';
     }).join("") || '<li class="muted">None yet.</li>';
   }
   function loadTalks() { readJSON("data/talks.json").then(function (t) { talks = t; renderTalks(); }); }
+  var slideInput = document.getElementById("talk-slide-input"), slideFor = null;
+  slideInput.addEventListener("change", function () {
+    var f = slideInput.files[0], t = talks[slideFor]; slideInput.value = "";
+    if (!f || !t) return;
+    if (f.size > MAX_FILE) { msg("talk-msg", "The slides are larger than 45 MB. Please export a smaller PDF.", "err"); return; }
+    msg("talk-msg", "Uploading slides…");
+    fileB64(f).then(function (b) {
+      return readJSON("data/talks.json").then(function (cur) {
+        var tt = cur.filter(function (x) { return x.id === t.id; })[0]; if (!tt) throw new Error("talk not found");
+        var changes = [], path = "files/talks/" + (tt.id || slug(tt.event)) + "." + ext(f.name);
+        if (tt.slides && tt.slides !== path) changes.push({ path: tt.slides, remove: true });
+        tt.slides = path; changes.push({ path: path, b64: b }, { path: "data/talks.json", text: JSON.stringify(cur, null, 1) + "\n" });
+        talks = cur;
+        return commit(changes, "Slides for talk: " + (tt.title || tt.event).slice(0, 50));
+      });
+    }).then(function () { msg("talk-msg", "Slides uploaded." + LIVE_NOTE, "ok"); renderTalks(); })
+      .catch(function (err) { msg("talk-msg", "Upload failed: " + err.message, "err"); });
+  });
   document.getElementById("talk-admin").addEventListener("click", function (e) {
+    var si = e.target.getAttribute("data-slides");
+    if (si != null) { slideFor = +si; slideInput.click(); return; }
     var i = e.target.getAttribute("data-del"); if (i == null) return;
     if (e.target.textContent !== "Confirm") { e.target.textContent = "Confirm"; return; }
     var t = talks.splice(+i, 1)[0];
@@ -315,13 +339,238 @@
   document.getElementById("talk-form").addEventListener("submit", function (e) {
     e.preventDefault();
     var v = function (k) { return document.getElementById(k).value.trim(); };
+    var slideFile = document.getElementById("t-slides").files[0];
+    if (slideFile && slideFile.size > MAX_FILE) { msg("talk-msg", "The slides are larger than 45 MB. Please export a smaller PDF.", "err"); return; }
     var t = { id: slug(v("t-event")) + "-" + Date.now().toString(36), kind: v("t-kind"), date: v("t-date"), event: v("t-event"), place: v("t-place"), title: v("t-title"), description: v("t-desc"), url: v("t-url") };
     var btn = e.target.querySelector("button[type=submit]"); btn.disabled = true; msg("talk-msg", "Saving…");
     readJSON("data/talks.json").then(function (cur) {
-      cur.push(t); cur.sort(function (a, b) { return String(b.date).localeCompare(String(a.date)); }); talks = cur;
-      return commit([{ path: "data/talks.json", text: JSON.stringify(cur, null, 1) + "\n" }], "Add talk: " + (t.title || t.event).slice(0, 60));
+      var changes = [];
+      return (slideFile ? fileB64(slideFile).then(function (b) {
+        t.slides = "files/talks/" + t.id + "." + ext(slideFile.name); changes.push({ path: t.slides, b64: b });
+      }) : Promise.resolve()).then(function () {
+        cur.push(t); cur.sort(function (a, b) { return String(b.date).localeCompare(String(a.date)); }); talks = cur;
+        changes.push({ path: "data/talks.json", text: JSON.stringify(cur, null, 1) + "\n" });
+        return commit(changes, "Add talk: " + (t.title || t.event).slice(0, 60));
+      });
     }).then(function () { msg("talk-msg", "Talk added." + LIVE_NOTE, "ok"); e.target.reset(); renderTalks(); })
       .catch(function (err) { msg("talk-msg", "Save failed: " + err.message, "err"); })
       .then(function () { btn.disabled = false; });
   });
+
+
+  /* ---------- weekly status ---------- */
+  var SW = window.StatusWeeks, SC = window.StatusCrypto;
+  var sdata = { projects: [], weeks: [] }, editingWeek = null;
+  var sExisting = [], sNew = [], loadedPriv = false;
+  var sFiles = document.getElementById("s-files"), sFileList = document.getElementById("s-filelist");
+  function fsize(n) { return n > 1048576 ? (n / 1048576).toFixed(1) + " MB" : Math.max(1, Math.round(n / 1024)) + " KB"; }
+  function projOptions(sel) {
+    return '<option value="">Whole week</option>' + sdata.projects.map(function (p) { return '<option value="' + esc(p.id) + '"' + (p.id === sel ? " selected" : "") + ">" + esc(p.name) + "</option>"; }).join("");
+  }
+  function renderFileList() {
+    sFileList.innerHTML = sExisting.map(function (f, i) {
+      return '<li class="' + (f._remove ? "rm" : "") + '"><span class="st-ficon">' + esc(ext(f.name).toUpperCase().slice(0, 4)) + '</span><span class="nm">' + esc(f.name) + ' <small>' + fsize(f.size || 0) + (f.enc ? " · 🔒" : "") + '</small></span><select data-ex="' + i + '" aria-label="Project">' + projOptions(f.project) + '</select><button type="button" data-rmex="' + i + '">' + (f._remove ? "Undo" : "Remove") + "</button></li>";
+    }).join("") + sNew.map(function (n, i) {
+      return '<li class="new"><span class="st-ficon">' + esc(ext(n.file.name).toUpperCase().slice(0, 4)) + '</span><span class="nm">' + esc(n.file.name) + " <small>" + fsize(n.file.size) + ' · new</small></span><select data-nw="' + i + '" aria-label="Project">' + projOptions(n.project) + '</select><button type="button" data-rmnw="' + i + '">Remove</button></li>';
+    }).join("");
+  }
+  sFiles.addEventListener("change", function () {
+    Array.prototype.forEach.call(sFiles.files, function (f) {
+      if (f.size > MAX_FILE) { msg("status-msg", f.name + " is larger than 45 MB. Please export a smaller PDF.", "err"); return; }
+      sNew.push({ file: f, project: "" });
+    });
+    sFiles.value = ""; renderFileList();
+  });
+  sFileList.addEventListener("change", function (e) {
+    var a = e.target.getAttribute("data-ex"), b = e.target.getAttribute("data-nw");
+    if (a != null) sExisting[+a].project = e.target.value; if (b != null) sNew[+b].project = e.target.value;
+  });
+  sFileList.addEventListener("click", function (e) {
+    var a = e.target.getAttribute("data-rmex"), b = e.target.getAttribute("data-rmnw");
+    if (a != null) { sExisting[+a]._remove = !sExisting[+a]._remove; renderFileList(); }
+    if (b != null) { sNew.splice(+b, 1); renderFileList(); }
+  });
+  var sDate = document.getElementById("s-date"), sProj = document.getElementById("s-projects");
+  function lines(id) { return document.getElementById(id).value.split("\n").map(function (x) { return x.replace(/^\s*[-•*]\s*/, "").trim(); }).filter(Boolean); }
+  function curWeek() { var d = sDate.value ? new Date(sDate.value + "T12:00:00") : new Date(); return SW.of(d); }
+  function isPrivate() { return document.querySelector('input[name="s-vis"]:checked').value === "private"; }
+  function passphrase() { var p = document.getElementById("s-pass").value; if (!p) { try { p = sessionStorage.getItem("st_pass") || ""; } catch (e) {} } return p; }
+  function updateWeekLabel() {
+    var wk = curWeek(), exists = sdata.weeks.some(function (w) { return w.week === wk; });
+    document.getElementById("s-weeklabel").textContent = SW.label(wk).split(" · ")[1] + (exists ? " · editing" : " · new");
+    document.getElementById("s-save").textContent = exists ? "Update this week" : "Save update";
+  }
+  function projectBlock(p, e) {
+    e = e || {};
+    var id = p.id, on = !!(e.done || e.plan || e.blockers || e.note);
+    return '<details class="st-fp" data-p="' + esc(id) + '"' + (on ? " open" : "") + ' style="--pc:' + esc(p.color) + '"><summary><span class="st-dot" aria-hidden="true"></span>' + esc(p.name) +
+      '<span class="muted small">' + esc(p.status === "active" ? "" : p.status) + "</span></summary>" +
+      '<div class="two"><div><label for="d-' + id + '">Done this week</label><textarea id="d-' + id + '" rows="3" placeholder="One item per line">' + esc((e.done || []).join("\n")) + '</textarea></div>' +
+      '<div><label for="n-' + id + '">Plan for next week</label><textarea id="n-' + id + '" rows="3" placeholder="One item per line">' + esc((e.plan || []).join("\n")) + "</textarea></div></div>" +
+      '<div class="two"><div><label for="b-' + id + '">Blockers (optional)</label><textarea id="b-' + id + '" rows="2">' + esc((e.blockers || []).join("\n")) + '</textarea></div>' +
+      '<div><label for="g-' + id + '">Progress: <output id="go-' + id + '">' + (e.progress != null ? e.progress : lastProgress(id)) + '</output>%</label><input id="g-' + id + '" type="range" min="0" max="100" step="5" value="' + (e.progress != null ? e.progress : lastProgress(id)) + '">' +
+      '<label for="t-' + id + '">Note (optional)</label><input id="t-' + id + '"  value="' + esc(e.note || "") + '"></div></div></details>';
+  }
+  function lastProgress(pid) {
+    var ws = sdata.weeks.filter(function (w) { return !w.private; }).sort(function (a, b) { return b.week.localeCompare(a.week); });
+    for (var i = 0; i < ws.length; i++) { var e = (ws[i].entries || []).filter(function (x) { return x.project === pid; })[0]; if (e && e.progress != null) return e.progress; }
+    return 0;
+  }
+  function fillForm(content, priv) {
+    sExisting = ((content && content.files) || []).map(function (f) { return Object.assign({}, f); }); sNew = []; loadedPriv = !!priv && !!content; renderFileList();
+    var byP = {}; ((content && content.entries) || []).forEach(function (e) { byP[e.project] = e; });
+    document.getElementById("s-summary").value = (content && content.summary) || "";
+    document.querySelector('input[name="s-vis"][value="' + (priv ? "private" : "public") + '"]').checked = true;
+    document.getElementById("s-passrow").hidden = !priv;
+    sProj.innerHTML = sdata.projects.filter(function (p) { return p.status !== "done" || byP[p.id]; }).map(function (p) { return projectBlock(p, byP[p.id]); }).join("") ||
+      '<p class="muted">Add a project below first.</p>';
+  }
+  sProj.addEventListener("input", function (e) { if (e.target.type === "range") document.getElementById("go-" + e.target.id.slice(2)).textContent = e.target.value; });
+  document.querySelectorAll('input[name="s-vis"]').forEach(function (r) { r.addEventListener("change", function () { document.getElementById("s-passrow").hidden = !isPrivate(); }); });
+
+  function weekContentFor(w) {
+    if (!w.private) return Promise.resolve(w);
+    var p = passphrase(); if (!p) return Promise.reject(new Error("Enter your passphrase to open private weeks."));
+    return SC.decrypt(w.enc, p).catch(function () { throw new Error("Wrong passphrase for this private week."); });
+  }
+  function loadWeekIntoForm(wk) {
+    var w = sdata.weeks.filter(function (x) { return x.week === wk; })[0];
+    updateWeekLabel();
+    if (!w) { fillForm(null, isPrivate()); return; }
+    weekContentFor(w).then(function (c) { fillForm(c, !!w.private); msg("status-msg", "Loaded " + SW.label(wk).split(" · ")[0] + " for editing."); })
+      .catch(function (err) { fillForm(null, true); msg("status-msg", err.message, "err"); });
+  }
+  sDate.addEventListener("change", function () { loadWeekIntoForm(curWeek()); });
+
+  document.getElementById("s-carry").addEventListener("click", function () {
+    var prev = sdata.weeks.filter(function (w) { return w.week < curWeek(); }).sort(function (a, b) { return b.week.localeCompare(a.week); })[0];
+    if (!prev) { msg("status-msg", "No earlier week to copy from."); return; }
+    weekContentFor(prev).then(function (c) {
+      var n = 0;
+      (c.entries || []).forEach(function (e) {
+        var ta = document.getElementById("d-" + e.project); if (!ta || !(e.plan || []).length) return;
+        if (!ta.value.trim()) { ta.value = e.plan.join("\n"); ta.closest("details").open = true; n++; }
+      });
+      msg("status-msg", n ? "Copied last week's plan into “Done” for " + n + " project(s). Edit what actually happened." : "Nothing to copy (Done fields already filled, or no plan last week).", n ? "ok" : "");
+    }).catch(function (err) { msg("status-msg", err.message, "err"); });
+  });
+
+  document.getElementById("status-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var wk = curWeek(), priv = isPrivate(), pass = passphrase();
+    if (priv && pass.length < 8) { msg("status-msg", "Use a passphrase of at least 8 characters for private updates.", "err"); return; }
+    var entries = [];
+    sdata.projects.forEach(function (p) {
+      if (!document.getElementById("d-" + p.id)) return;
+      var en = { project: p.id, done: lines("d-" + p.id), plan: lines("n-" + p.id), blockers: lines("b-" + p.id), progress: +document.getElementById("g-" + p.id).value, note: document.getElementById("t-" + p.id).value.trim() };
+      if (en.done.length || en.plan.length || en.blockers.length || en.note) entries.push(en);
+    });
+    if (!entries.length) { msg("status-msg", "Add at least one item for one project.", "err"); return; }
+    if (!priv && sExisting.some(function (f) { return f.enc && !f._remove; })) { msg("status-msg", "This week has encrypted files. Keep it Private, or remove those files first.", "err"); return; }
+    if (priv && sExisting.some(function (f) { return !f.enc && !f._remove; })) { msg("status-msg", "This week has public files. Remove them and upload again to make them private.", "err"); return; }
+    var content = { summary: document.getElementById("s-summary").value.trim(), entries: entries };
+    var fileChanges = [], stamp = Date.now().toString(36);
+    sExisting.filter(function (f) { return f._remove; }).forEach(function (f) { fileChanges.push({ path: f.path, remove: true }); });
+    var kept = sExisting.filter(function (f) { return !f._remove; }).map(function (f) { var c = Object.assign({}, f); delete c._remove; return c; });
+    var uploads = Promise.all(sNew.map(function (n, i) {
+      var f = n.file, base = "files/status/" + wk + "/" + stamp + "-" + (i + 1);
+      var meta = { name: f.name, size: f.size, type: f.type || "", project: n.project || "" };
+      if (!priv) return fileB64(f).then(function (b) { meta.path = base + "-" + slug(f.name.replace(/\.[^.]+$/, "")) + "." + ext(f.name); fileChanges.push({ path: meta.path, b64: b }); return meta; });
+      return f.arrayBuffer().then(function (buf) { return SC.encryptBytes(buf, pass); }).then(function (r) {
+        meta.path = base + ".enc"; meta.enc = { salt: r.salt, iv: r.iv }; fileChanges.push({ path: meta.path, b64: SC.b64(r.data) }); return meta;
+      });
+    }));
+    var btn = document.getElementById("s-save"); btn.disabled = true; msg("status-msg", priv ? "Encrypting and saving…" : (sNew.length ? "Uploading files and saving…" : "Saving…"));
+    uploads.then(function (newMeta) {
+      content.files = kept.concat(newMeta);
+      return priv ? SC.encrypt(content, pass).then(function (box) { return { week: wk, private: true, enc: box, updated: new Date().toISOString() }; })
+          : Promise.resolve({ week: wk, private: false, summary: content.summary, entries: entries, files: content.files, updated: new Date().toISOString() });
+    })
+      .then(function (rec) {
+        if (priv) { try { sessionStorage.setItem("st_pass", pass); } catch (x) {} }
+        return readJSON("data/status.json").then(function (cur) {
+          if (Array.isArray(cur)) cur = { projects: sdata.projects, weeks: [] };
+          cur.weeks = (cur.weeks || []).filter(function (w) { return w.week !== wk; }); cur.weeks.push(rec);
+          cur.weeks.sort(function (a, b) { return b.week.localeCompare(a.week); });
+          sdata = cur;
+          return commit(fileChanges.concat([{ path: "data/status.json", text: JSON.stringify(cur, null, 1) + "\n" }]), "Weekly status " + wk + (priv ? " (private)" : ""));
+        });
+      })
+      .then(function () { msg("status-msg", "Saved " + SW.label(wk).split(" · ")[0] + "." + LIVE_NOTE, "ok"); sExisting = content.files.slice(); sNew = []; renderFileList(); renderStatusList(); updateWeekLabel(); })
+      .catch(function (err) { msg("status-msg", "Save failed: " + err.message, "err"); })
+      .then(function () { btn.disabled = false; });
+  });
+
+  function renderStatusList() {
+    var ws = sdata.weeks.slice().sort(function (a, b) { return b.week.localeCompare(a.week); });
+    document.getElementById("status-admin").innerHTML = ws.map(function (w) {
+      var n = w.private ? "private" : (w.entries || []).length + " project(s)";
+      return '<li><div><span class="t">' + esc(SW.label(w.week)) + "</span><small>" + (w.private ? "🔒 " : "") + esc(n) + '</small></div><span class="row-btns"><button type="button" data-edit="' + esc(w.week) + '">Edit</button><button type="button" data-delw="' + esc(w.week) + '">Delete</button></span></li>';
+    }).join("") || '<li class="muted">No updates yet.</li>';
+  }
+  document.getElementById("status-admin").addEventListener("click", function (e) {
+    var wk = e.target.getAttribute("data-edit");
+    if (wk) { var m = SW.monday(wk); sDate.value = m.toISOString().slice(0, 10); loadWeekIntoForm(wk); document.getElementById("status").scrollIntoView(); return; }
+    wk = e.target.getAttribute("data-delw"); if (!wk) return;
+    if (e.target.textContent !== "Confirm") { e.target.textContent = "Confirm"; return; }
+    readJSON("data/status.json").then(function (cur) {
+      var gone = (cur.weeks || []).filter(function (w) { return w.week === wk; })[0];
+      cur.weeks = (cur.weeks || []).filter(function (w) { return w.week !== wk; }); sdata = cur;
+      var ch = ((gone && gone.files) || []).map(function (f) { return { path: f.path, remove: true }; });
+      if (gone && gone.private) msg("status-msg", "Note: files of a private week stay in the repo (encrypted) unless you remove them while editing.");
+      return commit(ch.concat([{ path: "data/status.json", text: JSON.stringify(cur, null, 1) + "\n" }]), "Delete weekly status " + wk);
+    }).then(function () { msg("status-msg", "Deleted." + LIVE_NOTE, "ok"); renderStatusList(); updateWeekLabel(); })
+      .catch(function (err) { msg("status-msg", "Delete failed: " + err.message, "err"); });
+  });
+
+  /* ---------- projects ---------- */
+  var projDirty = false, pSave = document.getElementById("p-save");
+  function renderProjectAdmin() {
+    document.getElementById("project-admin").innerHTML = sdata.projects.map(function (p, i) {
+      return '<div class="proj-row" data-i="' + i + '">' +
+        '<input type="color" data-f="color" value="' + esc(p.color || "#2446c7") + '" aria-label="Colour">' +
+        '<input data-f="name" value="' + esc(p.name) + '" placeholder="Project name" aria-label="Project name">' +
+        '<input data-f="collab" value="' + esc(p.collab || "") + '" placeholder="Collaboration" aria-label="Collaboration">' +
+        '<select data-f="status" aria-label="Status">' + ["active", "planned", "paused", "done"].map(function (s) { return "<option value=\"" + s + "\"" + (s === p.status ? " selected" : "") + ">" + { active: "Active", planned: "Planned", paused: "Paused", done: "Completed" }[s] + "</option>"; }).join("") + "</select>" +
+        '<input class="wide" data-f="description" value="' + esc(p.description || "") + '" placeholder="One-line description" aria-label="Description">' +
+        '<button type="button" class="rm" data-rm="' + i + '" title="Remove project">✕</button></div>';
+    }).join("") || '<p class="muted">No projects yet.</p>';
+  }
+  document.getElementById("project-admin").addEventListener("input", function (e) {
+    var row = e.target.closest(".proj-row"); if (!row) return;
+    sdata.projects[+row.getAttribute("data-i")][e.target.getAttribute("data-f")] = e.target.value;
+    projDirty = true; pSave.disabled = false;
+  });
+  document.getElementById("project-admin").addEventListener("click", function (e) {
+    var i = e.target.getAttribute("data-rm"); if (i == null) return;
+    if (e.target.textContent !== "Sure?") { e.target.textContent = "Sure?"; return; }
+    sdata.projects.splice(+i, 1); renderProjectAdmin(); projDirty = true; pSave.disabled = false;
+  });
+  document.getElementById("p-add").addEventListener("click", function () {
+    var colors = ["#2446c7", "#1f8a7a", "#a87a22", "#b3406b", "#6b4fbb", "#2f7d32", "#c2562b"];
+    sdata.projects.push({ id: "p-" + Date.now().toString(36), name: "", collab: "", color: colors[sdata.projects.length % colors.length], status: "active", description: "" });
+    renderProjectAdmin(); projDirty = true; pSave.disabled = false;
+    var rows = document.querySelectorAll(".proj-row"); rows[rows.length - 1].querySelector('[data-f="name"]').focus();
+  });
+  pSave.addEventListener("click", function () {
+    var projects = sdata.projects.filter(function (p) { return p.name.trim(); }).map(function (p) {
+      if (/^p-/.test(p.id)) p.id = slug(p.name) + "-" + p.id.slice(2, 6);
+      p.name = p.name.trim(); return p;
+    });
+    pSave.disabled = true; msg("proj-msg", "Saving…");
+    readJSON("data/status.json").then(function (cur) {
+      if (Array.isArray(cur)) cur = { weeks: [] };
+      cur.projects = projects; sdata = cur;
+      return commit([{ path: "data/status.json", text: JSON.stringify(cur, null, 1) + "\n" }], "Update status projects");
+    }).then(function () { msg("proj-msg", "Projects saved." + LIVE_NOTE, "ok"); projDirty = false; renderProjectAdmin(); loadWeekIntoForm(curWeek()); })
+      .catch(function (err) { msg("proj-msg", "Save failed: " + err.message, "err"); pSave.disabled = false; });
+  });
+
+  function loadStatus() {
+    readJSON("data/status.json").then(function (d) {
+      sdata = Array.isArray(d) ? { projects: [], weeks: [] } : { projects: d.projects || [], weeks: d.weeks || [] };
+      if (!sDate.value) { var t = new Date(); sDate.value = t.getFullYear() + "-" + String(t.getMonth() + 1).padStart(2, "0") + "-" + String(t.getDate()).padStart(2, "0"); }
+      renderProjectAdmin(); renderStatusList(); loadWeekIntoForm(curWeek());
+    }).catch(function (err) { msg("status-msg", "Couldn't load the work log: " + err.message, "err"); });
+  }
 })();

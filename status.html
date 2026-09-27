@@ -3,14 +3,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Outreach | Dr. Haradhan Adhikary</title>
-  <meta name="description" content="Science outreach by Haradhan Adhikary.">
+  <title>Work status | Dr. Haradhan Adhikary</title>
+  <meta name="description" content="Weekly work log of Dr. Haradhan Adhikary: progress and plans across research projects.">
   <meta name="author" content="Dr. Haradhan Adhikary">
-  <link rel="canonical" href="https://hadhikart2k.github.io/HAwebsite/outreach.html">
+  <link rel="canonical" href="https://hadhikart2k.github.io/HAwebsite/status.html">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="Outreach | Dr. Haradhan Adhikary">
-  <meta property="og:description" content="Science outreach by Haradhan Adhikary.">
-  <meta property="og:url" content="https://hadhikart2k.github.io/HAwebsite/outreach.html">
+  <meta property="og:title" content="Work status | Dr. Haradhan Adhikary">
+  <meta property="og:description" content="Weekly work log: progress and plans across research projects.">
+  <meta property="og:url" content="https://hadhikart2k.github.io/HAwebsite/status.html">
   <meta property="og:image" content="https://hadhikart2k.github.io/HAwebsite/assets/img/og-card.jpg">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="theme-color" content="#0a0f1a">
@@ -22,6 +22,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Spectral:wght@500;600&display=swap">
   <link rel="stylesheet" href="assets/css/style.css?v=20260927c">
   <script src="assets/js/main.js?v=20260927c" defer></script>
+  <script src="assets/js/status.js?v=20260927c" defer></script>
   <script src="assets/js/admin.js?v=20260927c" defer></script>
 </head>
 <body>
@@ -38,9 +39,9 @@
         <a href="cv.html">CV</a>
         <a href="publications.html">Publications</a>
         <a href="talks.html">Talks</a>
-        <a href="status.html">Status</a>
+        <a href="status.html" aria-current="page">Status</a>
         <a href="teaching.html">Teaching</a>
-        <a href="outreach.html" aria-current="page">Outreach</a>
+        <a href="outreach.html">Outreach</a>
         <a href="gallery.html">Gallery</a>
         <a href="contact.html">Contact</a>
       </nav>
@@ -51,27 +52,41 @@
 
   <main id="main">
     <div class="wrap page-head">
-      <span class="eyebrow">Outreach</span>
-      <h1>Science outreach</h1>
-      <p>Talking about particle physics beyond the lab: videos, public talks and school visits.</p>
+      <span class="eyebrow">Work status</span>
+      <h1>Weekly work log</h1>
+      <p>What I worked on each week and what comes next, project by project.</p>
+      <div class="admin-only btn-row" hidden><a class="btn primary" href="admin.html#status">＋ Add weekly update</a><a class="btn" href="admin.html#projects">Manage projects</a></div>
     </div>
-    <section class="section" style="padding-top:32px">
-      <div class="wrap split">
-        <div class="video" data-yt="cXirG0ajJHo">
-          <button type="button" aria-label="Play outreach video">
-            <img src="https://i.ytimg.com/vi/cXirG0ajJHo/hqdefault.jpg" alt="" loading="lazy">
-            <span class="play"><svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></span>
-          </button>
+
+    <section class="section st-top" style="padding-top:28px">
+      <div class="wrap st-stack">
+        <div class="st-now" id="st-now" aria-live="polite"></div>
+        <div>
+          <div class="st-sub"><h2>Projects</h2><span class="muted small" id="st-proj-count"></span></div>
+          <div class="st-projects" id="st-projects"><p class="pub-status">Loading…</p></div>
         </div>
-        <div class="prose">
-          <span class="eyebrow">Video</span>
-          <h2>Physics for everyone</h2>
-          <p>A video from my outreach work. The player loads from YouTube only when you press play.</p>
-          <p><a class="link-arrow" href="https://www.youtube.com/watch?v=cXirG0ajJHo" target="_blank" rel="noopener">Watch on YouTube</a></p>
+        <div>
+          <div class="st-sub"><h2>Activity</h2><span class="muted small">Last 26 weeks · darker means more projects updated</span></div>
+          <div class="st-activity" id="st-activity" role="list"></div>
         </div>
       </div>
     </section>
 
+    <section class="section">
+      <div class="wrap st-stack">
+        <div class="st-sub"><h2>Week by week</h2></div>
+        <div class="st-tools">
+          <input class="search" id="st-search" type="search" placeholder="Search updates…" autocomplete="off" aria-label="Search updates">
+          <div class="filters" id="st-filter" role="group" aria-label="Filter by project"></div>
+        </div>
+        <div class="st-unlock" id="st-unlock" hidden>
+          <span>🔒 <span id="st-locked-n"></span> private update(s).</span>
+          <form id="st-unlock-form" class="inline-row"><input id="st-pass" type="password" placeholder="Passphrase" autocomplete="current-password" aria-label="Passphrase"><button class="btn" type="submit">Unlock</button></form>
+          <span class="msg" id="st-unlock-msg" role="status"></span>
+        </div>
+        <div id="st-weeks" class="st-weeks"></div>
+      </div>
+    </section>
   </main>
 
   <footer class="site-footer">

@@ -27,7 +27,8 @@ def main():
     gallery = json.load(open(DATA)) if os.path.exists(DATA) else []
     have = {p["id"] for p in gallery}
     added = []
-    for name in sorted(os.listdir(INBOX)):
+    natural = lambda s: [int(t) if t.isdigit() else t.lower() for t in re.split(r"(\d+)", s)]
+    for name in sorted(os.listdir(INBOX), key=natural):
         stem, ext = os.path.splitext(name)
         if ext.lower() not in EXTS:
             continue

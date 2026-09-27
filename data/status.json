@@ -1,0 +1,29 @@
+{
+ "projects": [
+  {
+   "id": "momentum-scale",
+   "name": "Momentum-scale correlations (beam vs atmospheric)",
+   "collab": "T2K + SK",
+   "color": "#2446c7",
+   "status": "active",
+   "description": "Do momentum-scale uncertainties correlate between beam and atmospheric samples in the joint analysis?"
+  },
+  {
+   "id": "cross-fitter",
+   "name": "Cross-fitter validation",
+   "collab": "T2K + SK",
+   "color": "#1f8a7a",
+   "status": "active",
+   "description": "Validating atmospheric systematics across independent fitting frameworks."
+  },
+  {
+   "id": "joint-reproduction",
+   "name": "Joint analysis reproduction",
+   "collab": "T2K + SK",
+   "color": "#a87a22",
+   "status": "active",
+   "description": "Reproducing the SK+T2K joint analysis in the p-theta framework."
+  }
+ ],
+ "weeks": []
+}

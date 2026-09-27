@@ -20,9 +20,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Spectral:wght@500;600&display=swap">
-  <link rel="stylesheet" href="assets/css/style.css?v=20260925e">
-  <script src="assets/js/main.js?v=20260925e" defer></script>
-  <script src="assets/js/admin.js?v=20260925e" defer></script>
+  <link rel="stylesheet" href="assets/css/style.css?v=20260927c">
+  <script src="assets/js/main.js?v=20260927c" defer></script>
+  <script src="assets/js/status.js?v=20260927c" defer></script>
+  <script src="assets/js/admin.js?v=20260927c" defer></script>
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
@@ -38,6 +39,7 @@
         <a href="cv.html">CV</a>
         <a href="publications.html">Publications</a>
         <a href="talks.html">Talks</a>
+        <a href="status.html">Status</a>
         <a href="teaching.html">Teaching</a>
         <a href="outreach.html">Outreach</a>
         <a href="gallery.html">Gallery</a>
@@ -83,10 +85,59 @@
     <div id="admin-app" hidden>
       <div class="wrap admin-bar">
         <span id="admin-who" class="mono"></span>
-        <nav class="admin-tabs" aria-label="Manage sections"><a href="#photos">Photos</a><a href="#papers">Papers</a><a href="#talks">Talks</a></nav>
+        <nav class="admin-tabs" aria-label="Manage sections"><a href="#status">Weekly status</a><a href="#photos">Photos</a><a href="#papers">Papers</a><a href="#talks">Talks</a></nav>
         <a class="btn" id="actions-link" href="#" target="_blank" rel="noopener">Publishing status</a>
         <button class="btn" id="lock-btn" type="button">Lock</button>
       </div>
+
+
+      <section class="section" id="status">
+        <div class="wrap admin-grid st-admin">
+          <div class="admin-card">
+            <div class="row-between"><h2>Weekly update</h2><span class="pill" id="s-weeklabel"></span></div>
+            <form id="status-form" class="form">
+              <div class="two">
+                <div><label for="s-date">Any day in the week</label><input id="s-date" type="date" required></div>
+                <div><label>Visibility</label>
+                  <div class="seg vis" role="radiogroup" aria-label="Visibility">
+                    <label><input type="radio" name="s-vis" value="public" checked> Public</label>
+                    <label><input type="radio" name="s-vis" value="private"> Private 🔒</label>
+                  </div></div>
+              </div>
+              <div id="s-passrow" hidden>
+                <label for="s-pass">Passphrase for private updates</label>
+                <input id="s-pass" type="password" autocomplete="new-password" placeholder="Use the same one every week">
+                <p class="muted small">Private text is encrypted in your browser before it is saved. Nobody can read it without this passphrase, and it can't be recovered if forgotten.</p>
+              </div>
+              <label for="s-summary">Summary of the week (optional)</label>
+              <textarea id="s-summary" rows="2" placeholder="Short overview of the week"></textarea>
+              <div class="row-between" style="margin-top:8px"><strong>Projects</strong><button class="btn" type="button" id="s-carry">Fill “Done” from last week's plan</button></div>
+              <div id="s-projects" class="st-form-projects"></div>
+              <label for="s-files">Slides &amp; files (PDF works best: it opens right in the browser)</label>
+              <input id="s-files" type="file" multiple accept=".pdf,.ppt,.pptx,.key,.odp,.png,.jpg,.jpeg,.zip">
+              <ul id="s-filelist" class="st-flist"></ul>
+              <button class="btn primary" type="submit" id="s-save">Save update</button>
+              <p class="msg" id="status-msg" role="status"></p>
+            </form>
+          </div>
+          <div class="admin-card">
+            <h2>Past updates</h2>
+            <p class="muted">Edit loads a week into the form. Private weeks need your passphrase.</p>
+            <ul id="status-admin" class="admin-list"></ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="projects">
+        <div class="wrap">
+          <div class="admin-card">
+            <div class="row-between"><h2>Projects</h2><div class="btn-row"><button class="btn" type="button" id="p-add">＋ Add project</button><button class="btn primary" type="button" id="p-save" disabled>Save projects</button></div></div>
+            <p class="muted">Project names, descriptions and status are public. Keep confidential details in private weekly updates.</p>
+            <div id="project-admin" class="proj-admin"></div>
+            <p class="msg" id="proj-msg" role="status"></p>
+          </div>
+        </div>
+      </section>
 
       <section class="section" id="photos">
         <div class="wrap admin-grid">
@@ -104,7 +155,7 @@
           </div>
           <div class="admin-card">
             <div class="row-between"><h2>Gallery</h2><button class="btn primary" id="gallery-save" type="button" disabled>Save changes</button></div>
-            <p class="muted">Edit captions, change categories, or tick photos to remove. Newest photos show first, and the first six appear on the home page.</p>
+            <p class="muted">Edit captions, change categories, or tick photos to remove. Tick “Home page” for up to six photos to show on the home page.</p>
             <p class="msg" id="gallery-msg" role="status"></p>
             <div id="gallery-admin" class="admin-thumbs"></div>
           </div>
@@ -161,13 +212,16 @@
               <label for="t-event">Conference or event</label><input id="t-event" required placeholder="NuFact 2026">
               <label for="t-title">Talk title</label><input id="t-title">
               <label for="t-desc">Short description</label><textarea id="t-desc" rows="3"></textarea>
-              <label for="t-url">Link (Indico, slides)</label><input id="t-url" type="url" placeholder="https://indico…">
+              <label for="t-url">Link (Indico)</label><input id="t-url" type="url" placeholder="https://indico…">
+              <label for="t-slides">Slides (optional, PDF recommended)</label><input id="t-slides" type="file" accept=".pdf,.ppt,.pptx,.key,.odp">
               <button class="btn primary" type="submit">Add talk</button>
               <p class="msg" id="talk-msg" role="status"></p>
             </form>
           </div>
           <div class="admin-card">
             <h2>Talks</h2>
+            <p class="muted">Use “Slides” to attach or replace the slides of any talk.</p>
+            <input type="file" id="talk-slide-input" accept=".pdf,.ppt,.pptx,.key,.odp" hidden>
             <ul id="talk-admin" class="admin-list"></ul>
           </div>
         </div>
