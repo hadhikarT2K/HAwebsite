@@ -27,6 +27,36 @@
  ],
  "weeks": [
   {
+   "week": "2026-W40",
+   "private": false,
+   "summary": "Status of P-theta work to report on 28/09/2026",
+   "entries": [
+    {
+     "project": "momentum-scale",
+     "done": [
+      "1. Frequentist ￼ Profile Fit",
+      "2. Bayesian analysis"
+     ],
+     "plan": [
+      "Reproducing the Data Fit"
+     ],
+     "blockers": [],
+     "progress": 55,
+     "note": ""
+    }
+   ],
+   "files": [
+    {
+     "name": "workstatus_ptheta_28_09_2026.pdf",
+     "size": 3142248,
+     "type": "application/pdf",
+     "project": "",
+     "path": "files/status/2026-W40/mul2bxmv-1-workstatus-ptheta-28-09-2026.pdf"
+    }
+   ],
+   "updated": "2026-09-28T09:46:25.939Z"
+  },
+  {
    "week": "2026-W39",
    "private": true,
    "enc": {
