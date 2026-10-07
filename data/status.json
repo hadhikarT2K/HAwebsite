@@ -27,6 +27,17 @@
  ],
  "weeks": [
   {
+   "week": "2026-W41",
+   "private": true,
+   "enc": {
+    "v": 1,
+    "salt": "81kBg1e098YVRzNf9/0Ujw==",
+    "iv": "skGGIYafKc/oMdfX",
+    "data": "VCS36B2qdNk7FrN2rBpmZaRDMb8y0u60L5sMl+O25BmJxl4WevCLw68+3pDXAgw6JijBzY6pD59Tgk9+Hynll5/Lto7JwzV41CA8v0hEtnq+8JoVkhJxsUbXSNqsC9j3mCXX+WtV0U+CHC1/g39rNQXNYIXCry7r76WS8OFCNL7IojLCs+F55t8eZPWLt8g6njq8L1GyTDgj6Kc2xxoMzP2n82l+1HpyopwGl6BLBtN9lN+Ad15Gus3sJMszJm8udACoBNYMxadDl5ALAhR2Tpls5b59QGzvSC5tm5GlFBE5700giXFF4Or3iijIj8CdPeZ35kcz++GJsaJyPQ1q0sjMAEmcFK6DIyCD7VSROMk4TtQNBQxm7qcEbX3ozurcWFUV9K3sKYvlkXrAD2w1EmTvLeyj93Tb504+FKL6k033Y1J3xufjwfKItqozUuFK+kSaUKXKLFHhGaNu2KaZ2OFKudlr3qQ3+f3/oiXq96qMZf4JaZ9zRYGibQS+iGnFEYaP6Qvlc6XfYUIO9hW+680W2tEEJNqUbSxyqM4v4pQO6dL9jnAjdz6+L1iPUGFm+nluOpVqOlzlrEqOqaYrudIaC/mFFHf/6//AHdigrteQXRajjCwVtra2A333vYp2YeCXCxzFBInKq88cxXXZDvatmgKG5AcNJkzkMASpdeSW0Ywi5CUuWCReZZ4xyM1/DlOG1ViuzRyqi1SfN9AZdWntPPDcAXCQlH9TNlGMwlJtezMRQFfdtccj/EM/gu44lRpk/jiXeIA="
+   },
+   "updated": "2026-10-07T10:28:17.782Z"
+  },
+  {
    "week": "2026-W40",
    "private": false,
    "summary": "Status of P-theta work to report on 28/09/2026",
