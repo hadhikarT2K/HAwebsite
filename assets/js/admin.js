@@ -103,12 +103,15 @@
       head = ref.object.sha;
       return gh("/git/commits/" + head);
     }).then(function (c) {
-      return Promise.all(changes.map(function (ch) {
-        if (ch.remove) return Promise.resolve({ path: ch.path, mode: "100644", type: "blob", sha: null });
-        var content = ch.b64 != null ? ch.b64 : b64utf8(ch.text);
-        return gh("/git/blobs", { method: "POST", body: { content: content, encoding: "base64" } })
-          .then(function (b) { return { path: ch.path, mode: "100644", type: "blob", sha: b.sha }; });
-      })).then(function (tree) {
+      var tree = [], done = 0, total = changes.filter(function (c) { return !c.remove; }).length;
+      return changes.reduce(function (p, ch) {
+        return p.then(function () {
+          if (ch.remove) { tree.push({ path: ch.path, mode: "100644", type: "blob", sha: null }); return; }
+          var content = ch.b64 != null ? ch.b64 : b64utf8(ch.text);
+          return gh("/git/blobs", { method: "POST", body: { content: content, encoding: "base64" } })
+            .then(function (b) { tree.push({ path: ch.path, mode: "100644", type: "blob", sha: b.sha }); done++; if (commit.onProgress) commit.onProgress(done, total); });
+        });
+      }, Promise.resolve()).then(function () {
         return gh("/git/trees", { method: "POST", body: { base_tree: c.tree.sha, tree: tree } });
       });
     }).then(function (t) {
@@ -576,7 +579,52 @@
 
 
   /* ---------- outreach magazines ---------- */
-  var odata = { series: [], items: [] }, oEditing = null;
+  var odata = { series: [], items: [] }, oEditing = null, oPages = [];
+  function oFmt() { return document.querySelector('input[name="o-fmt"]:checked').value; }
+  function oSetFmt(f) {
+    document.querySelector('input[name="o-fmt"][value="' + f + '"]').checked = true;
+    document.getElementById("o-pdf-box").hidden = f !== "pdf"; document.getElementById("o-img-box").hidden = f !== "images";
+  }
+  document.querySelectorAll('input[name="o-fmt"]').forEach(function (r) { r.addEventListener("change", function () { oSetFmt(oFmt()); }); });
+  var natural = function (a, b) { return a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: "base" }); };
+  function renderPageList() {
+    document.getElementById("o-page-list").innerHTML = oPages.map(function (f, i) {
+      return '<li><img alt="" src="' + f._url + '"><span>' + (i + 1) + ". " + esc(f.name) + '</span><span class="row-btns">' +
+        (i ? '<button type="button" data-pup="' + i + '" title="Move up">↑</button>' : "") +
+        (i < oPages.length - 1 ? '<button type="button" data-pdn="' + i + '" title="Move down">↓</button>' : "") +
+        '<button type="button" data-prm="' + i + '" title="Remove">✕</button></span></li>';
+    }).join("");
+  }
+  document.getElementById("o-pages").addEventListener("change", function (e) {
+    var fs = Array.prototype.slice.call(e.target.files).sort(natural);
+    fs.forEach(function (f) { f._url = URL.createObjectURL(f); });
+    oPages = oPages.concat(fs); e.target.value = ""; renderPageList();
+  });
+  document.getElementById("o-page-list").addEventListener("click", function (e) {
+    var t = e.target, i;
+    if ((i = t.getAttribute("data-pup")) != null) { i = +i; oPages.splice(i - 1, 0, oPages.splice(i, 1)[0]); }
+    else if ((i = t.getAttribute("data-pdn")) != null) { i = +i; oPages.splice(i + 1, 0, oPages.splice(i, 1)[0]); }
+    else if ((i = t.getAttribute("data-prm")) != null) { oPages.splice(+i, 1); }
+    else return;
+    renderPageList();
+  });
+  // decode → resize → JPEG, in the browser
+  // mode "page": keep detail; width ≤ 1800 px, any height (tall single-page magazines stay sharp),
+  //   capped at ~16 MP so every browser can draw it.  mode "cover": top of the page, 3:4, ≤ 900 px wide.
+  function toJpeg(file, mode, quality) {
+    return createImageBitmap(file).then(function (bmp) {
+      var sx = 0, sy = 0, sw = bmp.width, sh = bmp.height;
+      if (mode === "cover") sh = Math.min(bmp.height, Math.round(bmp.width * 4 / 3));
+      var maxW = mode === "cover" ? 900 : 1800;
+      var s = Math.min(1, maxW / sw, Math.sqrt(16e6 / (sw * sh)));
+      var c = document.createElement("canvas"); c.width = Math.round(sw * s); c.height = Math.round(sh * s);
+      var x = c.getContext("2d"); x.fillStyle = "#fff"; x.fillRect(0, 0, c.width, c.height); x.drawImage(bmp, sx, sy, sw, sh, 0, 0, c.width, c.height);
+      if (bmp.close) bmp.close();
+      return new Promise(function (res) { c.toBlob(res, "image/jpeg", quality); });
+    }).then(function (blob) {
+      return new Promise(function (res, rej) { var fr = new FileReader(); fr.onload = function () { res(String(fr.result).split(",")[1]); }; fr.onerror = rej; fr.readAsDataURL(blob); });
+    }, function () { throw new Error(file.name + " couldn't be read as an image (use PNG, JPG or WebP)."); });
+  }
   var OMAX = 45 * 1048576;
   function oSeriesOptions(sel) { return odata.series.map(function (s) { return '<option value="' + esc(s.id) + '"' + (s.id === sel ? " selected" : "") + ">" + esc(s.name) + (s.native ? " · " + esc(s.native) : "") + "</option>"; }).join(""); }
   function renderOutreachAdmin() {
@@ -599,7 +647,7 @@
   function oResetForm() {
     oEditing = null; document.getElementById("outreach-form").reset();
     document.getElementById("o-heading").textContent = "Add a magazine issue"; document.getElementById("o-save").textContent = "Add issue";
-    document.getElementById("o-cancel").hidden = true; document.getElementById("o-file-now").textContent = ""; renderOutreachAdmin();
+    document.getElementById("o-cancel").hidden = true; document.getElementById("o-file-now").textContent = ""; oPages = []; renderPageList(); oSetFmt("images"); renderOutreachAdmin();
   }
   document.getElementById("o-cancel").addEventListener("click", oResetForm);
   document.getElementById("outreach-admin").addEventListener("click", function (e) {
@@ -609,7 +657,9 @@
       oEditing = it; renderOutreachAdmin();
       ["title", "issue", "date", "url"].forEach(function (k) { document.getElementById("o-" + k).value = it[k] || ""; });
       document.getElementById("o-desc").value = it.description || "";
-      document.getElementById("o-file-now").textContent = it.file ? "Current PDF: " + it.file.split("/").pop() + " (choose a file only to replace it)" : "";
+      oPages = []; renderPageList(); oSetFmt(it.file && !it.images ? "pdf" : "images");
+      document.getElementById("o-file-now").textContent = it.images ? "Current issue: " + (it.images.length === 1 ? "1 image" : it.images.length + " page images") + " (add images only to replace)" :
+        (it.file ? "Current PDF: " + it.file.split("/").pop() + " (choose a file only to replace it)" : "");
       document.getElementById("o-heading").textContent = "Edit issue"; document.getElementById("o-save").textContent = "Save changes";
       document.getElementById("o-cancel").hidden = false; document.getElementById("outreach").scrollIntoView(); return;
     }
@@ -621,6 +671,7 @@
       var ch = [];
       if (gone && gone.file && /^files\//.test(gone.file)) ch.push({ path: gone.file, remove: true });
       if (gone && gone.cover && /^assets\/img\/outreach\//.test(gone.cover)) ch.push({ path: gone.cover, remove: true });
+      ((gone && gone.images) || []).forEach(function (p) { ch.push({ path: p, remove: true }); });
       ch.push({ path: "data/outreach.json", text: JSON.stringify(cur, null, 1) + "\n" });
       return commit(ch, "Delete outreach issue: " + ((gone && gone.title) || id).slice(0, 50));
     }).then(function () { msg("outreach-msg", "Deleted." + LIVE_NOTE, "ok"); renderOutreachAdmin(); })
@@ -629,8 +680,9 @@
   document.getElementById("outreach-form").addEventListener("submit", function (e) {
     e.preventDefault();
     var v = function (k) { return document.getElementById(k).value.trim(); };
-    var pdf = document.getElementById("o-file").files[0], cov = document.getElementById("o-cover").files[0];
-    if (!pdf && !v("o-url") && !(oEditing && oEditing.file)) { msg("outreach-msg", "Choose the magazine PDF, or give a link.", "err"); return; }
+    var fmt = oFmt(), pdf = fmt === "pdf" ? document.getElementById("o-file").files[0] : null, cov = document.getElementById("o-cover").files[0];
+    if (fmt === "images" && !oPages.length && !(oEditing && oEditing.images)) { msg("outreach-msg", "Add the page images.", "err"); return; }
+    if (fmt === "pdf" && !pdf && !v("o-url") && !(oEditing && oEditing.file)) { msg("outreach-msg", "Choose the magazine PDF, or give a link.", "err"); return; }
     if (pdf && pdf.size > OMAX) { msg("outreach-msg", "This PDF is " + (pdf.size / 1048576).toFixed(0) + " MB. The limit is 45 MB: compress it (e.g. “Reduce file size” when exporting), or upload it to Google Drive and paste the link instead.", "err"); return; }
     if (cov && cov.size > 20 * 1048576) { msg("outreach-msg", "The cover image is too large (max 20 MB).", "err"); return; }
     var it = oEditing ? Object.assign({}, oEditing) : { id: slug(v("o-title")) + "-" + Date.now().toString(36) };
@@ -638,6 +690,26 @@
     var changes = [], btn = document.getElementById("o-save"); btn.disabled = true;
     msg("outreach-msg", pdf ? "Uploading the PDF (" + (pdf.size / 1048576).toFixed(1) + " MB)…" : "Saving…");
     var jobs = [];
+    if (fmt === "images" && oPages.length) {
+      var pages = oPages.slice();
+      jobs.push(pages.reduce(function (p, f, i) {
+        return p.then(function (acc) {
+          msg("outreach-msg", "Preparing page " + (i + 1) + " of " + pages.length + "…");
+          return toJpeg(f, "page", 0.86).then(function (b) {
+            var path = "files/outreach/" + it.id + "/p" + String(i + 1).padStart(3, "0") + ".jpg";
+            changes.push({ path: path, b64: b }); acc.push(path); return acc;
+          });
+        });
+      }, Promise.resolve([])).then(function (paths) {
+        (it.images || []).forEach(function (old) { if (paths.indexOf(old) < 0) changes.push({ path: old, remove: true }); });
+        if (it.file && /^files\//.test(it.file)) { changes.push({ path: it.file, remove: true }); delete it.file; }
+        it.images = paths; it.pages = paths.length;
+        if (!cov) return toJpeg(pages[0], "cover", 0.82).then(function (b) {
+          it.cover = "assets/img/outreach/" + it.id + ".jpg"; changes.push({ path: it.cover, b64: b });
+        });
+      }));
+    }
+    if (pdf && it.images) { it.images.forEach(function (old) { changes.push({ path: old, remove: true }); }); delete it.images; }
     if (pdf) jobs.push(fileB64(pdf).then(function (b) {
       var path = "files/outreach/" + it.id + ".pdf";
       if (it.file && it.file !== path && /^files\//.test(it.file)) changes.push({ path: it.file, remove: true });
@@ -655,7 +727,8 @@
       if (Array.isArray(cur)) cur = { series: odata.series, items: [] };
       cur.items = (cur.items || []).filter(function (x) { return x.id !== it.id; }); cur.items.push(it); odata = cur;
       changes.push({ path: "data/outreach.json", text: JSON.stringify(cur, null, 1) + "\n" });
-      return commit(changes, (oEditing ? "Update" : "Add") + " outreach issue: " + it.title.slice(0, 50));
+      commit.onProgress = function (d, t) { msg("outreach-msg", "Uploading " + d + " of " + t + " files…"); };
+      return commit(changes, (oEditing ? "Update" : "Add") + " outreach issue: " + it.title.slice(0, 50)).then(function (r) { commit.onProgress = null; return r; }, function (e) { commit.onProgress = null; throw e; });
     }).then(function () {
       msg("outreach-msg", (oEditing ? "Saved." : "Issue added.") + LIVE_NOTE + (it.cover ? "" : " The cover appears once the GitHub job has made it."), "ok");
       oResetForm();

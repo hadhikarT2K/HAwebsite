@@ -21,10 +21,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Spectral:wght@500;600&display=swap">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tiro+Bangla&display=swap">
-  <link rel="stylesheet" href="assets/css/style.css?v=20261022a">
-  <script src="assets/js/main.js?v=20261022a" defer></script>
-  <script src="assets/js/status.js?v=20261022a" defer></script>
-  <script src="assets/js/admin.js?v=20261022a" defer></script>
+  <link rel="stylesheet" href="assets/css/style.css?v=20261022c">
+  <script src="assets/js/main.js?v=20261022c" defer></script>
+  <script src="assets/js/status.js?v=20261022c" defer></script>
+  <script src="assets/js/admin.js?v=20261022c" defer></script>
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
@@ -153,9 +153,22 @@
                 <div><label for="o-date">Month</label><input id="o-date" type="month"></div>
               </div>
               <label for="o-desc">Short description</label><textarea id="o-desc" rows="2"></textarea>
-              <label for="o-file">Magazine PDF</label><input id="o-file" type="file" accept=".pdf,application/pdf">
+              <label>Format</label>
+              <div class="seg vis" role="radiogroup" aria-label="Format">
+                <label><input type="radio" name="o-fmt" value="images" checked> Image (PNG/JPG)</label>
+                <label><input type="radio" name="o-fmt" value="pdf"> PDF</label>
+              </div>
+              <div id="o-pdf-box" class="form" hidden>
+                <label for="o-file">Magazine PDF</label><input id="o-file" type="file" accept=".pdf,application/pdf">
+              </div>
+              <div id="o-img-box" class="form">
+                <label for="o-pages">Magazine image: one PNG/JPG, or several pages in reading order</label>
+                <input id="o-pages" type="file" accept="image/png,image/jpeg,image/webp" multiple>
+                <p class="muted small">Images are compressed in your browser before upload, so large PNGs are fine. Tall single-page magazines keep their full length. The top of the first image becomes the cover.</p>
+                <ol id="o-page-list" class="page-list"></ol>
+              </div>
               <p class="muted small" id="o-file-now"></p>
-              <label for="o-cover">Cover image (optional; without one, the first page of the PDF is used)</label><input id="o-cover" type="file" accept="image/*,.heic,.heif">
+              <label for="o-cover">Cover image (optional; otherwise the first page is used)</label><input id="o-cover" type="file" accept="image/*,.heic,.heif">
               <label for="o-url">Or a link instead of a PDF (e.g. Google Drive for very large files)</label><input id="o-url" type="url" placeholder="https://…">
               <button class="btn primary" type="submit" id="o-save">Add issue</button>
               <p class="msg" id="outreach-msg" role="status"></p>

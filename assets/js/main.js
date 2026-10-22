@@ -301,20 +301,36 @@
           "<h2>" + esc(s.name) + (s.native ? ' <span class="bn" lang="bn">' + esc(s.native) + "</span>" : "") + "</h2>" +
           (s.description ? "<p>" + esc(s.description) + "</p>" : "") + "</div></header>" +
           (its.length ? '<div class="mag-grid">' + its.map(function (it) {
-            var href = it.file || it.url || "#";
+            var readable = (it.images && it.images.length) || /\.pdf$/i.test(it.file || "");
+            var href = readable ? "#read-" + it.id + "-p1" : (it.url || it.file || "#");
+            var tgt = readable ? ' data-read="' + esc(it.id) + '"' : ' target="_blank" rel="noopener"';
+            var npages = it.images ? it.images.length : it.pages;
             var cover = it.cover
               ? '<img src="' + esc(it.cover) + '" alt="Cover of ' + esc(it.title) + '" loading="lazy">'
               : '<span class="mag-blank"><b lang="bn">' + esc(s.native || s.name) + "</b><i>" + esc(it.title) + "</i></span>";
             return '<article class="mag">' +
-              '<a class="mag-cover" href="' + esc(href) + '" target="_blank" rel="noopener" aria-label="Read ' + esc(it.title) + '">' + cover + "</a>" +
+              '<a class="mag-cover" href="' + esc(href) + '"' + tgt + ' aria-label="Read ' + esc(it.title) + '">' + cover + (npages > 1 ? '<span class="mag-pages">' + npages + " pages</span>" : "") + "</a>" +
               '<div class="mag-meta"><span class="meta">' + esc([it.issue, mdate(it.date)].filter(Boolean).join(" · ")) + "</span>" +
               "<h3>" + esc(it.title) + "</h3>" + (it.description ? "<p>" + esc(it.description) + "</p>" : "") +
-              '<div class="foot">' + (href !== "#" ? '<a class="link-arrow" href="' + esc(href) + '" target="_blank" rel="noopener">Read</a>' : "") +
-              (it.file ? '<a href="' + esc(it.file) + '" download>Download PDF' + (it.pages ? " · " + it.pages + " pages" : "") + "</a>" : "") + "</div></div></article>";
+              '<div class="foot">' + (href !== "#" ? '<a class="link-arrow" href="' + esc(href) + '"' + tgt + ">Read</a>" : "") +
+              (it.file ? '<a href="' + esc(it.file) + '" download>Download PDF</a>' : "") + "</div></div></article>";
           }).join("") + "</div>"
             : '<p class="muted">The first issue is on its way.</p>') + "</section>";
       }).join("");
       shelves.innerHTML = html || '<p class="pub-status">Nothing here yet.</p>';
+      var byId = {}, sName = {};
+      series.forEach(function (s) { sName[s.id] = s.name + (s.native ? " · " + s.native : ""); });
+      items.forEach(function (it) { byId[it.id] = it; it.seriesName = sName[it.series] || sName.other || ""; });
+      function openFromHash() {
+        var h = /^#read-(.+)-p(\d+)$/.exec(location.hash);
+        if (h && byId[h[1]] && window.MagReader) window.MagReader.open(byId[h[1]], +h[2]);
+      }
+      shelves.addEventListener("click", function (e) {
+        var a = e.target.closest("[data-read]"); if (!a || !window.MagReader) return;
+        e.preventDefault(); window.MagReader.open(byId[a.getAttribute("data-read")], 1);
+      });
+      openFromHash();
+      window.addEventListener("hashchange", function () { if (/^#read-/.test(location.hash) && document.querySelector(".reader[hidden]")) openFromHash(); });
     }).catch(function () { shelves.innerHTML = '<p class="pub-status">Couldn\'t load the magazines. Please refresh.</p>'; });
   }
 
