@@ -285,6 +285,39 @@
     HL.papers = ps; HL.renderFeatured(); HL.renderList();
   }).catch(function () { if (feat) feat.hidden = true; });
 
+  /* ---------- outreach: magazine shelves (data/outreach.json) ---------- */
+  var shelves = document.getElementById("mag-shelves");
+  if (shelves) {
+    var MONTHS3 = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    var mdate = function (d) { var x = /^(\d{4})-(\d{2})/.exec(d || ""); return x ? MONTHS3[+x[2] - 1] + " " + x[1] : (d || ""); };
+    getJSON("data/outreach.json").then(function (d) {
+      var series = d.series || [], items = (d.items || []).slice().sort(function (a, b) { return String(b.date).localeCompare(String(a.date)); });
+      var known = {}; series.forEach(function (s) { known[s.id] = 1; });
+      var html = series.map(function (s) {
+        var its = items.filter(function (it) { return (known[it.series] ? it.series : "other") === s.id; });
+        if (!its.length && s.id === "other") return "";
+        return '<section class="mag-shelf" id="' + esc(s.id) + '">' +
+          '<header class="mag-head"><div><span class="eyebrow">' + (its.length ? its.length + " issue" + (its.length === 1 ? "" : "s") : "Coming soon") + (s.language ? " · " + esc(s.language) : "") + "</span>" +
+          "<h2>" + esc(s.name) + (s.native ? ' <span class="bn" lang="bn">' + esc(s.native) + "</span>" : "") + "</h2>" +
+          (s.description ? "<p>" + esc(s.description) + "</p>" : "") + "</div></header>" +
+          (its.length ? '<div class="mag-grid">' + its.map(function (it) {
+            var href = it.file || it.url || "#";
+            var cover = it.cover
+              ? '<img src="' + esc(it.cover) + '" alt="Cover of ' + esc(it.title) + '" loading="lazy">'
+              : '<span class="mag-blank"><b lang="bn">' + esc(s.native || s.name) + "</b><i>" + esc(it.title) + "</i></span>";
+            return '<article class="mag">' +
+              '<a class="mag-cover" href="' + esc(href) + '" target="_blank" rel="noopener" aria-label="Read ' + esc(it.title) + '">' + cover + "</a>" +
+              '<div class="mag-meta"><span class="meta">' + esc([it.issue, mdate(it.date)].filter(Boolean).join(" · ")) + "</span>" +
+              "<h3>" + esc(it.title) + "</h3>" + (it.description ? "<p>" + esc(it.description) + "</p>" : "") +
+              '<div class="foot">' + (href !== "#" ? '<a class="link-arrow" href="' + esc(href) + '" target="_blank" rel="noopener">Read</a>' : "") +
+              (it.file ? '<a href="' + esc(it.file) + '" download>Download PDF' + (it.pages ? " · " + it.pages + " pages" : "") + "</a>" : "") + "</div></div></article>";
+          }).join("") + "</div>"
+            : '<p class="muted">The first issue is on its way.</p>') + "</section>";
+      }).join("");
+      shelves.innerHTML = html || '<p class="pub-status">Nothing here yet.</p>';
+    }).catch(function () { shelves.innerHTML = '<p class="pub-status">Couldn\'t load the magazines. Please refresh.</p>'; });
+  }
+
   /* ---------- lazy YouTube embed ---------- */
   document.querySelectorAll(".video[data-yt]").forEach(function (box) {
     var btn = box.querySelector("button");

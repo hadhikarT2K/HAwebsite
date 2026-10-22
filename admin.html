@@ -20,10 +20,11 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Spectral:wght@500;600&display=swap">
-  <link rel="stylesheet" href="assets/css/style.css?v=20260927c">
-  <script src="assets/js/main.js?v=20260927c" defer></script>
-  <script src="assets/js/status.js?v=20260927c" defer></script>
-  <script src="assets/js/admin.js?v=20260927c" defer></script>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tiro+Bangla&display=swap">
+  <link rel="stylesheet" href="assets/css/style.css?v=20261022a">
+  <script src="assets/js/main.js?v=20261022a" defer></script>
+  <script src="assets/js/status.js?v=20261022a" defer></script>
+  <script src="assets/js/admin.js?v=20261022a" defer></script>
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
@@ -85,7 +86,7 @@
     <div id="admin-app" hidden>
       <div class="wrap admin-bar">
         <span id="admin-who" class="mono"></span>
-        <nav class="admin-tabs" aria-label="Manage sections"><a href="#status">Weekly status</a><a href="#photos">Photos</a><a href="#papers">Papers</a><a href="#talks">Talks</a></nav>
+        <nav class="admin-tabs" aria-label="Manage sections"><a href="#status">Weekly status</a><a href="#outreach">Outreach</a><a href="#photos">Photos</a><a href="#papers">Papers</a><a href="#talks">Talks</a></nav>
         <a class="btn" id="actions-link" href="#" target="_blank" rel="noopener">Publishing status</a>
         <button class="btn" id="lock-btn" type="button">Lock</button>
       </div>
@@ -135,6 +136,45 @@
             <p class="muted">Project names, descriptions and status are public. Keep confidential details in private weekly updates.</p>
             <div id="project-admin" class="proj-admin"></div>
             <p class="msg" id="proj-msg" role="status"></p>
+          </div>
+        </div>
+      </section>
+
+
+      <section class="section" id="outreach">
+        <div class="wrap admin-grid">
+          <div class="admin-card">
+            <div class="row-between"><h2 id="o-heading">Add a magazine issue</h2><button class="btn" type="button" id="o-cancel" hidden>Cancel editing</button></div>
+            <form id="outreach-form" class="form">
+              <label for="o-series">Series</label><select id="o-series"></select>
+              <label for="o-title">Title</label><input id="o-title" required placeholder="e.g. Meghnad Saha: the equation of the stars">
+              <div class="two">
+                <div><label for="o-issue">Issue</label><input id="o-issue" placeholder="Issue 1"></div>
+                <div><label for="o-date">Month</label><input id="o-date" type="month"></div>
+              </div>
+              <label for="o-desc">Short description</label><textarea id="o-desc" rows="2"></textarea>
+              <label for="o-file">Magazine PDF</label><input id="o-file" type="file" accept=".pdf,application/pdf">
+              <p class="muted small" id="o-file-now"></p>
+              <label for="o-cover">Cover image (optional; without one, the first page of the PDF is used)</label><input id="o-cover" type="file" accept="image/*,.heic,.heif">
+              <label for="o-url">Or a link instead of a PDF (e.g. Google Drive for very large files)</label><input id="o-url" type="url" placeholder="https://…">
+              <button class="btn primary" type="submit" id="o-save">Add issue</button>
+              <p class="msg" id="outreach-msg" role="status"></p>
+            </form>
+          </div>
+          <div class="admin-card">
+            <h2>Issues</h2>
+            <ul id="outreach-admin" class="admin-list"></ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="outreach-series">
+        <div class="wrap">
+          <div class="admin-card">
+            <div class="row-between"><h2>Outreach series</h2><div class="btn-row"><button class="btn" type="button" id="os-add">＋ Add series</button><button class="btn primary" type="button" id="os-save" disabled>Save series</button></div></div>
+            <p class="muted">Each series is a shelf on the Outreach page. Write the Bengali name in “Name in original script”.</p>
+            <div id="series-admin" class="proj-admin"></div>
+            <p class="msg" id="series-msg" role="status"></p>
           </div>
         </div>
       </section>

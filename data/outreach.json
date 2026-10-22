@@ -1,0 +1,19 @@
+{
+ "series": [
+  {
+   "id": "tarar-golpo",
+   "name": "Tarar Golpo",
+   "native": "তারার গল্প",
+   "description": "A story magazine. Edit this description on the Manage page.",
+   "language": "Bengali"
+  },
+  {
+   "id": "other",
+   "name": "Other stories & articles",
+   "native": "",
+   "description": "",
+   "language": ""
+  }
+ ],
+ "items": []
+}

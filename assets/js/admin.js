@@ -139,7 +139,7 @@
     }).then(function (u) {
       unlockSec.hidden = true; app.hidden = false;
       document.getElementById("admin-who").textContent = "Signed in" + (u.login ? " as " + u.login : "") + " · " + REPO.owner + "/" + REPO.repo;
-      loadGallery(); loadPapers(); loadTalks(); loadStatus();
+      loadGallery(); loadPapers(); loadTalks(); loadStatus(); loadOutreach();
       if (location.hash) { var t = document.querySelector(location.hash); if (t) t.scrollIntoView(); }
     });
   }
@@ -572,5 +572,127 @@
       if (!sDate.value) { var t = new Date(); sDate.value = t.getFullYear() + "-" + String(t.getMonth() + 1).padStart(2, "0") + "-" + String(t.getDate()).padStart(2, "0"); }
       renderProjectAdmin(); renderStatusList(); loadWeekIntoForm(curWeek());
     }).catch(function (err) { msg("status-msg", "Couldn't load the work log: " + err.message, "err"); });
+  }
+
+
+  /* ---------- outreach magazines ---------- */
+  var odata = { series: [], items: [] }, oEditing = null;
+  var OMAX = 45 * 1048576;
+  function oSeriesOptions(sel) { return odata.series.map(function (s) { return '<option value="' + esc(s.id) + '"' + (s.id === sel ? " selected" : "") + ">" + esc(s.name) + (s.native ? " · " + esc(s.native) : "") + "</option>"; }).join(""); }
+  function renderOutreachAdmin() {
+    document.getElementById("o-series").innerHTML = oSeriesOptions(oEditing ? oEditing.series : (odata.series[0] || {}).id);
+    var byS = {}; odata.series.forEach(function (s) { byS[s.id] = s; });
+    var its = odata.items.slice().sort(function (a, b) { return String(b.date).localeCompare(String(a.date)); });
+    document.getElementById("outreach-admin").innerHTML = its.map(function (it) {
+      return '<li><div><span class="t">' + esc(it.title) + "</span><small>" + esc([(byS[it.series] || {}).name, it.issue, it.date, it.file ? "PDF" : (it.url ? "link" : ""), it.cover ? "cover ✓" : "cover pending"].filter(Boolean).join(" · ")) +
+        '</small></div><span class="row-btns"><button type="button" data-oedit="' + esc(it.id) + '">Edit</button><button type="button" data-odel="' + esc(it.id) + '">Delete</button></span></li>';
+    }).join("") || '<li class="muted">No issues yet.</li>';
+    document.getElementById("series-admin").innerHTML = odata.series.map(function (s, i) {
+      return '<div class="proj-row series-row" data-i="' + i + '">' +
+        '<input data-f="name" value="' + esc(s.name) + '" placeholder="Name" aria-label="Series name">' +
+        '<input data-f="native" class="bn" value="' + esc(s.native || "") + '" placeholder="Name in original script" aria-label="Name in original script">' +
+        '<input data-f="language" value="' + esc(s.language || "") + '" placeholder="Language" aria-label="Language">' +
+        '<input class="wide" data-f="description" value="' + esc(s.description || "") + '" placeholder="Short description" aria-label="Description">' +
+        (s.id === "other" ? "<span></span>" : '<button type="button" class="rm" data-srm="' + i + '" title="Remove series">✕</button>') + "</div>";
+    }).join("");
+  }
+  function oResetForm() {
+    oEditing = null; document.getElementById("outreach-form").reset();
+    document.getElementById("o-heading").textContent = "Add a magazine issue"; document.getElementById("o-save").textContent = "Add issue";
+    document.getElementById("o-cancel").hidden = true; document.getElementById("o-file-now").textContent = ""; renderOutreachAdmin();
+  }
+  document.getElementById("o-cancel").addEventListener("click", oResetForm);
+  document.getElementById("outreach-admin").addEventListener("click", function (e) {
+    var id = e.target.getAttribute("data-oedit");
+    if (id) {
+      var it = odata.items.filter(function (x) { return x.id === id; })[0]; if (!it) return;
+      oEditing = it; renderOutreachAdmin();
+      ["title", "issue", "date", "url"].forEach(function (k) { document.getElementById("o-" + k).value = it[k] || ""; });
+      document.getElementById("o-desc").value = it.description || "";
+      document.getElementById("o-file-now").textContent = it.file ? "Current PDF: " + it.file.split("/").pop() + " (choose a file only to replace it)" : "";
+      document.getElementById("o-heading").textContent = "Edit issue"; document.getElementById("o-save").textContent = "Save changes";
+      document.getElementById("o-cancel").hidden = false; document.getElementById("outreach").scrollIntoView(); return;
+    }
+    id = e.target.getAttribute("data-odel"); if (!id) return;
+    if (e.target.textContent !== "Confirm") { e.target.textContent = "Confirm"; return; }
+    readJSON("data/outreach.json").then(function (cur) {
+      var gone = (cur.items || []).filter(function (x) { return x.id === id; })[0];
+      cur.items = (cur.items || []).filter(function (x) { return x.id !== id; }); odata = cur;
+      var ch = [];
+      if (gone && gone.file && /^files\//.test(gone.file)) ch.push({ path: gone.file, remove: true });
+      if (gone && gone.cover && /^assets\/img\/outreach\//.test(gone.cover)) ch.push({ path: gone.cover, remove: true });
+      ch.push({ path: "data/outreach.json", text: JSON.stringify(cur, null, 1) + "\n" });
+      return commit(ch, "Delete outreach issue: " + ((gone && gone.title) || id).slice(0, 50));
+    }).then(function () { msg("outreach-msg", "Deleted." + LIVE_NOTE, "ok"); renderOutreachAdmin(); })
+      .catch(function (err) { msg("outreach-msg", "Delete failed: " + err.message, "err"); });
+  });
+  document.getElementById("outreach-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var v = function (k) { return document.getElementById(k).value.trim(); };
+    var pdf = document.getElementById("o-file").files[0], cov = document.getElementById("o-cover").files[0];
+    if (!pdf && !v("o-url") && !(oEditing && oEditing.file)) { msg("outreach-msg", "Choose the magazine PDF, or give a link.", "err"); return; }
+    if (pdf && pdf.size > OMAX) { msg("outreach-msg", "This PDF is " + (pdf.size / 1048576).toFixed(0) + " MB. The limit is 45 MB: compress it (e.g. “Reduce file size” when exporting), or upload it to Google Drive and paste the link instead.", "err"); return; }
+    if (cov && cov.size > 20 * 1048576) { msg("outreach-msg", "The cover image is too large (max 20 MB).", "err"); return; }
+    var it = oEditing ? Object.assign({}, oEditing) : { id: slug(v("o-title")) + "-" + Date.now().toString(36) };
+    it.series = v("o-series"); it.title = v("o-title"); it.issue = v("o-issue"); it.date = v("o-date"); it.description = v("o-desc"); it.url = v("o-url");
+    var changes = [], btn = document.getElementById("o-save"); btn.disabled = true;
+    msg("outreach-msg", pdf ? "Uploading the PDF (" + (pdf.size / 1048576).toFixed(1) + " MB)…" : "Saving…");
+    var jobs = [];
+    if (pdf) jobs.push(fileB64(pdf).then(function (b) {
+      var path = "files/outreach/" + it.id + ".pdf";
+      if (it.file && it.file !== path && /^files\//.test(it.file)) changes.push({ path: it.file, remove: true });
+      it.file = path; changes.push({ path: path, b64: b });
+      if (!cov && it.cover && /^assets\/img\/outreach\//.test(it.cover)) { changes.push({ path: it.cover, remove: true }); delete it.cover; }   // new PDF → regenerate cover
+      delete it.pages;
+    }));
+    if (cov) jobs.push(fileB64(cov).then(function (b) {
+      // raw cover goes to the inbox; the GitHub job converts it to assets/img/outreach/<id>.jpg
+      changes.push({ path: "photos/outreach-covers/" + it.id + "." + ext(cov.name), b64: b });
+      if (it.cover && /^assets\/img\/outreach\//.test(it.cover)) changes.push({ path: it.cover, remove: true });
+      delete it.cover;
+    }));
+    Promise.all(jobs).then(function () { return readJSON("data/outreach.json"); }).then(function (cur) {
+      if (Array.isArray(cur)) cur = { series: odata.series, items: [] };
+      cur.items = (cur.items || []).filter(function (x) { return x.id !== it.id; }); cur.items.push(it); odata = cur;
+      changes.push({ path: "data/outreach.json", text: JSON.stringify(cur, null, 1) + "\n" });
+      return commit(changes, (oEditing ? "Update" : "Add") + " outreach issue: " + it.title.slice(0, 50));
+    }).then(function () {
+      msg("outreach-msg", (oEditing ? "Saved." : "Issue added.") + LIVE_NOTE + (it.cover ? "" : " The cover appears once the GitHub job has made it."), "ok");
+      oResetForm();
+    }).catch(function (err) { msg("outreach-msg", "Save failed: " + err.message, "err"); })
+      .then(function () { btn.disabled = false; });
+  });
+  var osSave = document.getElementById("os-save");
+  document.getElementById("series-admin").addEventListener("input", function (e) {
+    var row = e.target.closest(".series-row"); if (!row) return;
+    odata.series[+row.getAttribute("data-i")][e.target.getAttribute("data-f")] = e.target.value; osSave.disabled = false;
+  });
+  document.getElementById("series-admin").addEventListener("click", function (e) {
+    var i = e.target.getAttribute("data-srm"); if (i == null) return;
+    var s = odata.series[+i];
+    if (odata.items.some(function (it) { return it.series === s.id; })) { msg("series-msg", "Move or delete this series' issues first.", "err"); return; }
+    if (e.target.textContent !== "Sure?") { e.target.textContent = "Sure?"; return; }
+    odata.series.splice(+i, 1); renderOutreachAdmin(); osSave.disabled = false;
+  });
+  document.getElementById("os-add").addEventListener("click", function () {
+    var other = odata.series.filter(function (s) { return s.id === "other"; });
+    odata.series = odata.series.filter(function (s) { return s.id !== "other"; }).concat([{ id: "s-" + Date.now().toString(36), name: "", native: "", language: "", description: "" }], other);
+    renderOutreachAdmin(); osSave.disabled = false;
+  });
+  osSave.addEventListener("click", function () {
+    var series = odata.series.filter(function (s) { return s.name.trim(); }).map(function (s) { if (/^s-/.test(s.id)) s.id = slug(s.name); s.name = s.name.trim(); return s; });
+    osSave.disabled = true; msg("series-msg", "Saving…");
+    readJSON("data/outreach.json").then(function (cur) {
+      if (Array.isArray(cur)) cur = { items: [] };
+      cur.series = series; odata = cur;
+      return commit([{ path: "data/outreach.json", text: JSON.stringify(cur, null, 1) + "\n" }], "Update outreach series");
+    }).then(function () { msg("series-msg", "Saved." + LIVE_NOTE, "ok"); renderOutreachAdmin(); })
+      .catch(function (err) { msg("series-msg", "Save failed: " + err.message, "err"); osSave.disabled = false; });
+  });
+  function loadOutreach() {
+    readJSON("data/outreach.json").then(function (d) {
+      odata = Array.isArray(d) ? { series: [], items: [] } : { series: d.series || [], items: d.items || [] };
+      renderOutreachAdmin();
+    }).catch(function (err) { msg("outreach-msg", "Couldn't load outreach data: " + err.message, "err"); });
   }
 })();
