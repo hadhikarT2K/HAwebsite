@@ -30,6 +30,19 @@
     "files/outreach/india-based-neutrino-observatory-story-mvj4rqma/p002.jpg"
    ],
    "cover": "assets/img/outreach/india-based-neutrino-observatory-story-mvj4rqma.jpg"
+  },
+  {
+   "id": "meghnad-saha-mvk8ucav",
+   "series": "tarar-golpo",
+   "title": "Meghnad Saha",
+   "issue": "Issuse 2",
+   "date": "October",
+   "description": "Meghnad Saha: The Scientist Who Helped Us Read the Stars",
+   "url": "",
+   "images": [
+    "files/outreach/meghnad-saha-mvk8ucav/p001.jpg"
+   ],
+   "pages": 1
   }
  ]
 }
