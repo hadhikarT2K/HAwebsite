@@ -1,5 +1,19 @@
 [
  {
+  "id": "inspire-2512940",
+  "inspire": "2512940",
+  "title": "Search for the critical point of strongly interacting matter (Intermittency analysis by NA61/SHINE at CERN SPS)",
+  "collab": "NA61/SHINE",
+  "journal": "EPJ Web Conf. 274 (2022) 06008",
+  "year": "2022",
+  "arxiv": "2211.10504",
+  "doi": "10.1051/epjconf/202227406008",
+  "url": "https://inspirehep.net/literature/2512940",
+  "type": "proc",
+  "note": "",
+  "featured": true
+ },
+ {
   "id": "t2k-nova-nature-2025",
   "title": "Joint neutrino oscillation analysis from the T2K and NOvA experiments",
   "collab": "T2K and NOvA Collaborations",
